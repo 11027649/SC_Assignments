@@ -12,7 +12,7 @@ def main():
 
     # divide grid in 100 discrete steps
     height = 100
-    width = 100
+    width = 102
 
     # actual lengths are 1
     len_x = 1
@@ -30,7 +30,7 @@ def main():
     im =  plt.imshow(grid, cmap="winter")
     plt.colorbar()
 
-    next_grid = analytical_next(height, width, D, dt, dx, grid)
+    next_grid = next(height, width, D, dt, dx, grid)
 
     anim = animation.FuncAnimation(fig, animate, frames=200, interval=100, blit=True)
     plt.show()
@@ -51,14 +51,14 @@ def initialize(height, width):
     return grid
 
 
-######### analytical
-def analytical_next(height, width, D, dt, dx, current_state):
+def next(height, width, D, dt, dx, current_state):
     """ Compute concentration in each grid point.
         TODO: out of bounds check (now ignoring x,y =0 and x,y =100) """
     next_state = copy.copy(current_state)
-    # iterate over grid, first row is always concentration 1
+    # iterate over grid, first row is always concentration 1, last row always 0
     for i in range(1, height - 1):
-        for j in range(width - 1):
+        # iterate over columsn, first and last are periodic boundaries
+        for j in range(1, width - 1):
             next_state[i][j] = current_state[i][j]\
                                 + (dt * D)/dx**2 * (current_state[i+1][j]\
                                 + current_state[i - 1][j]\
@@ -67,9 +67,6 @@ def analytical_next(height, width, D, dt, dx, current_state):
                                 - 4 * current_state[i][j])
 
     return next_state
-
-
-######### our own stuff
 
 
 
