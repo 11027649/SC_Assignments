@@ -5,118 +5,102 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import copy
 
-frames = []
-im = []
-k = 0
+from matplotlib import colors
 
 def main():
-    global frames, im
+    # set up figure
+    fig = plt.figure()
+    fig.suptitle("Time dependent diffusion")
+
+    ####### Variables
     # diffusion coefficient
-    D = 0.1
+    D = 1
 
     # divide grid in 100 discrete steps
     height = 50
-    width = 100
+    width = 10
 
     # actual lengths are 1
     len_x = 1
     len_y = 1
 
-    # deltas
+    # deltas and time stuff
     dx = len_x/width
     dy = len_y/height
-    dt = 0.1
+    dt = 0.001
+    tmax = 1
+    timesteps = math.ceil(tmax/dt)
 
-    grid = initialize(height, width)
+    # these need to be global for the animation
+    global current_state, im
 
-    # set up the figure, the axis, and the plot element we want to animate
-    fig = plt.figure()
-    fig.set_dpi(100)
-    ax1 = fig.add_subplot(1,1,1)
+    # initiate image and diffusion grid
+    current_state = DiffusionGrid(height, width, D, dt, dx)
+    im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
 
-    # list of arrays
-    #https://stackoverflow.com/questions/39472017/how-to-animate-the-colorbar-in-matplotlib
+    # call the animator, blit = True means only redraw changed part
+    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=50, blit=True)
 
-    for i in range(10):
-        next_grid = next(height, width, D, dt, dx, grid)
-        frames.append(next_grid)
-
-    grid = frames[0]
-    im = ax1.imshow(grid, cmap="winter") #plt
-    cb = fig.colorbar(im) #plt
-    # tx = ax1.set_title('Frame 0')
-
-    #JUST FOR CHECKING
-    # next_grid = next(height, width, D, dt, dx, grid)
-    # print('new')
-    # print(next_grid)
-
-    anim = animation.FuncAnimation(fig, animate, frames=200) #, interval=100, blit=True)
-    # plt.ylim(0, height)
+    # show animation
+    plt.colorbar()
     plt.show()
+    print("done!")
+    anim.save("Diffusion.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
 
 
 def animate(i):
-    global frames, im, k
-    arr = frames[i]
-    im.set_data(arr) #im.set_data(next_grid)
-    # tx.set_text('Frame {0}'.format(i))
-    k += 1
+    """ Calculate next state and set that for the animation. """
+    current_state.next_step()
+    im.set_data(current_state.grid)
+
+    return im,
 
 
-def initialize(height, width):
-    """" Initalize grid """
-    grid = [[0 for col in range(width)] for row in range(height)]
+class DiffusionGrid():
+    """ This is a class that contains the diffusion coefficient and dimensions for
+        the diffusion grid. It also contains the diffusion grid itself."""
 
-    # initialize top with concentration 1
-    for j in range(width):
-        grid[0][j] = 1
+    def __init__(self, height, width, D, dt, dx):
+        self.height = height
+        self.width = width
+        self.D = D
+        self.dt = dt
+        self.dx = dx
 
-    return grid
+        self.initialize()
 
+    def initialize(self):
+        """" Initalize grid """
+        self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
-def next(height, width, D, dt, dx, current_state):
-    """ Compute concentration in each grid point.
-        TODO: out of bounds check (now ignoring x,y =0 and x,y =100) """
-    next_state = copy.copy(current_state)
-    # iterate over grid, first row is always concentration 1, last row always 0
-    for i in range(height): #range(1, height - 1):
-        # iterate over columns, first and last are periodic boundaries
-        for j in range(width):
-            # print('i', i)
-            # print('j', j)
+        # initialize top with concentration 1
+        for i in range(0, self.width):
+            self.grid[0][i] = 1
 
-            # when the state is at the first or last row
-            if current_state[0][j] or current_state[-1][j]:
-                next_state[i][j] = current_state[i][j]
+    def next_step(self):
+        """ Compute concentration in each grid point. """
 
-            # when the state is out of bound on left side grid
-            elif current_state[i][0]:
+        current_state = self.grid
+        next_state = copy.copy(self.grid)
+
+        # iterate over grid, first row is always concentration 1, last row always 0
+        for i in range(1, self.height - 1):
+            # iterate over columsn, first and last are periodic boundaries
+            for j in range(1, self.width - 1):
                 next_state[i][j] = current_state[i][j]\
-                                    + (dt * D)/dx**2 * (current_state[i+1][j]\
-                                    + current_state[-1][j]\
-                                    + current_state[i][j + 1]\
-                                    + current_state[i][j - 1]\
-                                    - 4 * current_state[i][j])
-
-            # when the state is out of bound on right side grid
-            elif current_state[i][-1]:
-                next_state[i][j] = current_state[i][j]\
-                                    + (dt * D)/dx**2 * (current_state[0][j]\
+                                    + (self.dt * self.D)/self.dx**2 * (current_state[i+1][j]\
                                     + current_state[i - 1][j]\
                                     + current_state[i][j + 1]\
                                     + current_state[i][j - 1]\
                                     - 4 * current_state[i][j])
 
-            # when the state is not in any boundary
-            else:
-                next_state[i][j] = current_state[i][j]\
-                                    + (dt * D)/dx**2 * (current_state[i+1][j]\
-                                    + current_state[i - 1][j]\
-                                    + current_state[i][j + 1]\
-                                    + current_state[i][j - 1]\
-                                    - 4 * current_state[i][j])
-    return next_state
+            # copy for periodic boundaries
+            next_state[i][0] = next_state[i][self.width - 2]
+            next_state[i][self.width - 1] = next_state[i][1]
+
+        self.grid = copy.copy(next_state)
+
+
 
 if __name__ == '__main__':
     main()
