@@ -10,14 +10,14 @@ def main():
     # variables
     c = 1.0
     dt = 0.001
-    tmax = 1.5
+    tmax = 2
     timesteps = math.ceil(tmax/dt)
 
     # global variables needed for animation
     global current_state, fig, ax1
 
     # initalize wave, pick 2pi, 5pi or 5pi_constrained_domain
-    current_state = Wave("5pi_constrained_domain", c, dt)
+    current_state = Wave("2pi", c, dt)
 
     # ask user what to do
     print("Do you want to see the animation of the wave? Yes/No", end=" ")
@@ -38,7 +38,8 @@ def main():
         ax1 = fig.add_subplot(1,1,1)
 
         # animate
-        anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=100)
+        # interval is between frames
+        anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1)
         plt.show()
         print("animation done")
         # save animation
@@ -59,7 +60,7 @@ def animate(i):
 class Wave():
     def __init__(self, type, c, dt):
         self.type = type
-        self.x = np.linspace(0, 1, 100)
+        self.x = np.linspace(0, 1, 200)
         self.dx = 1/len(self.x)
         self.dt = dt
 
@@ -139,6 +140,8 @@ class Wave():
         plt.title("Wave at different times")
         plt.legend(loc="upper right")
         plt.show()
+        # fig.set_size_inches(7,3)
+        fig.savefig('vibrating_string_'+ current_state.type + '.png', dpi=150)
 
 
 if __name__ == '__main__':
