@@ -45,7 +45,7 @@ def main():
     plt.colorbar()
     plt.show()
     print("done!")
-    anim.save("Diffusion.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
+    anim.save("results/Diffusion.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
 
 
 def animate(i):

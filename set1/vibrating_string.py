@@ -43,7 +43,7 @@ def main():
         plt.show()
         print("animation done")
         # save animation
-        anim.save('vibrating_string_'+ current_state.type + '.mp4')
+        anim.save('results/vibrating_string_'+ current_state.type + '.mp4')
         print("animation is saved")
 
 def animate(i):
@@ -141,7 +141,7 @@ class Wave():
         plt.legend(loc="upper right")
         plt.show()
         # fig.set_size_inches(7,3)
-        fig.savefig('vibrating_string_'+ current_state.type + '.png', dpi=150)
+        fig.savefig('results/vibrating_string_'+ current_state.type + '.png', dpi=150)
 
 
 if __name__ == '__main__':
