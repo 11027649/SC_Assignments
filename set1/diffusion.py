@@ -19,8 +19,8 @@ def main():
     D = 1
 
     # divide grid in 100 discrete steps
-    height = 50
-    width = 10
+    height = 20
+    width = 20
 
     # actual lengths are 1
     len_x = 1
@@ -38,8 +38,8 @@ def main():
 
     # initiate image and diffusion grid
     # current_state = DiffusionGrid(height, width, D, dt, dx, "Time_Dependent")
-    # current_state = DiffusionGrid(height, width, D, dt, dx, "Jacobi")
-    current_state = DiffusionGrid(height, width, D, dt, dx, "Gauss_Seidel")
+    current_state = DiffusionGrid(height, width, D, dt, dx, "Jacobi")
+    # current_state = DiffusionGrid(height, width, D, dt, dx, "Gauss_Seidel")
     # current_state = DiffusionGrid(height, width, D, dt, dx, "SOR")
 
     im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
@@ -50,7 +50,7 @@ def main():
     # show animation
     plt.colorbar()
     plt.show()
-    print("done!")
+
     anim.save("results/Diffusion.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
 
 
