@@ -37,7 +37,11 @@ def main():
     global current_state, im
 
     # initiate image and diffusion grid
-    current_state = DiffusionGrid(height, width, D, dt, dx)
+    # current_state = DiffusionGrid(height, width, D, dt, dx, "Time_Dependent")
+    # current_state = DiffusionGrid(height, width, D, dt, dx, "Jacobi")
+    current_state = DiffusionGrid(height, width, D, dt, dx, "Gauss_Seidel")
+    # current_state = DiffusionGrid(height, width, D, dt, dx, "SOR")
+
     im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
 
     # call the animator, blit = True means only redraw changed part
@@ -52,7 +56,16 @@ def main():
 
 def animate(i):
     """ Calculate next state and set that for the animation. """
-    current_state.next_step()
+
+    if current_state.method is "Time_Dependent":
+        current_state.next_step()
+    elif current_state.method is "Gauss_Seidel":
+        current_state.next_step_gauss_seidel()
+    elif current_state.method is "Jacobi":
+        current_state.next_step_jacobi()
+    else:
+        current_state.next_step_sor()
+
     im.set_data(current_state.grid)
 
     return im,
