@@ -4,6 +4,7 @@ import pandas
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import copy
+import tkinter as tk
 
 from DiffusionGrid import DiffusionGrid
 
@@ -40,18 +41,29 @@ def main():
     # current_state = DiffusionGrid(height, width, D, dt, dx, "Gauss_Seidel")
     # current_state = DiffusionGrid(height, width, D, dt, "SOR")
 
-    im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
+    # ask user what to do
+    print("Do you want to see the animation of the diffusion? Yes/No", end=" ")
+    visualization = input()
 
-    # call the animator, blit = True means only redraw changed part
-    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, blit=True)
+    if visualization == "no":
+        for t in range(timesteps + 1):
+            current_state.next_step()
 
-    # show animation
-    plt.xticks([])
-    plt.yticks([])
-    plt.colorbar()
-    plt.show()
+        current_state.plot_time_frames()
+    elif visualization == "yes":
+        im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
 
-    anim.save("results/Diffusion.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
+        # call the animator, blit = True means only redraw changed part
+        anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, blit=True)
+
+        # show animation
+        plt.xticks([])
+        plt.yticks([])
+        plt.colorbar()
+        plt.show()
+
+        anim.save("results/Diffusion.mp4")
+        print("Saved MP4 of the simulation")
 
 
 def animate(i):

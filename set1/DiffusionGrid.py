@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import copy
 
+from matplotlib import colors
+
 class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
@@ -43,7 +45,7 @@ class DiffusionGrid():
 
         # save info for plots
         if self.time in self.save_times:
-            self.saved_states.append(copy.copy(self))
+            self.saved_states.append(copy.deepcopy(self))
 
         # call next step for right method
         if self.method is "Time_Dependent":
@@ -58,8 +60,6 @@ class DiffusionGrid():
         self.time += 1
 
 
-
-
     def next_step_time_dependent(self):
         """ Compute concentration in each grid point, according to the time dependent
             discretized partial differential equation. """
@@ -70,17 +70,28 @@ class DiffusionGrid():
         # iterate over grid, first row is always concentration 1, last row always 0
         for i in range(1, self.height - 1):
             # iterate over columsn, first and last are periodic boundaries
-            for j in range(1, self.width - 1):
-                next_state[i][j] = current_state[i][j]\
-                                    + (self.dt * self.D)/self.dx**2 * (current_state[i+1][j]\
-                                    + current_state[i - 1][j]\
-                                    + current_state[i][j + 1]\
-                                    + current_state[i][j - 1]\
-                                    - 4 * current_state[i][j])
-
-            # copy for periodic boundaries
-            next_state[i][0] = next_state[i][self.width - 2]
-            next_state[i][self.width - 1] = next_state[i][1]
+            for j in range(self.width):
+                if j == 0:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][self.width - 1]\
+                                        + current_state[i][j - 1]\
+                                        - 4 * current_state[i][j])
+                elif j == self.width - 1:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][0]\
+                                        + current_state[i][j - 1]\
+                                        - 4 * current_state[i][j])
+                else:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][j + 1]\
+                                        + current_state[i][j - 1]\
+                                        - 4 * current_state[i][j])
 
         self.grid = copy.copy(next_state)
 
@@ -148,3 +159,14 @@ class DiffusionGrid():
             next_state[i][self.width - 1] = next_state[i][1]
 
         self.grid = copy.copy(next_state)
+
+    def plot_time_frames(self):
+
+        for i in range(len(self.saved_states)):
+            plt.subplot(2,3,i + 1)
+            plt.title("Diffusion grid at t = " + str(self.save_times[i]/10000))
+            plt.imshow(self.saved_states[i].grid, norm=colors.Normalize(vmin=0,vmax=1))
+            plt.xticks([])
+            plt.yticks([])
+        plt.colorbar()
+        plt.show()
