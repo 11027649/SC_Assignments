@@ -19,7 +19,7 @@ def main():
     tmax = 1
     timesteps = math.ceil(tmax/dt) + 1
 
-    methods = ["Time_Dependent"]#, "Jacobi", "Gauss_Seidel", "SOR"]
+    methods = ["Time_Dependent", "Jacobi", "Gauss_Seidel", "SOR"]
 
     for method in methods:
         current_state = DiffusionGrid(height, width, D, dt, timesteps, method)
