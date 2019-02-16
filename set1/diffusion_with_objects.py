@@ -19,17 +19,13 @@ def main():
     tmax = 1
     timesteps = math.ceil(tmax/dt) + 1
 
-    methods = ["Time_Dependent"]#, "Jacobi", "Gauss_Seidel", "SOR"]
+    current_state = DiffusionGrid(height, width, D, dt, timesteps, "Time_Dependent")
+    current_state.add_object((20, 10), 15, 5)
+    # calculate states
+    for t in range(timesteps):
+        current_state.next_step()
 
-    for method in methods:
-        current_state = DiffusionGrid(height, width, D, dt, timesteps, method)
-
-        # calculate states
-        for t in range(timesteps):
-            current_state.next_step()
-
-        current_state.plot_time_frames()
-        current_state.compare_to_analytic_solution()
+    current_state.plot_time_frames()
 
 
 if __name__ == '__main__':
