@@ -8,7 +8,7 @@ Scientific Computing Assignments
 * Alle 4 de methodes geven dezelfde resultaten ?
 * Colorbar fixen bij de plot met 5 plaatjes (ziet er echt lelijk uit)
 
-* C.  ~- mp4 is corrupt~
+* C.  ~- mp4 is corrupt~ Aanzetten en superlang wachten of kijken of we png kunnen opslaan en ffmpeg gebruiken om filmpje te maken
 * D. Determine equation
 * E. ~Analytische solution plot maken~
 * F. ~Plotjes maken van verschillende tijdspunten~
