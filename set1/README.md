@@ -1,11 +1,11 @@
 # Set 1
 
 ## Vibrating string
-
-## Diffusion run information
 * A.
 * B.
-* C. Run ```python diffusion_animation.py``` with the right method, and be patient: saving the mp4 takes a lot of time.
+* C. Run ```python``` with the right method, and be patient: saving the mp4 takes a lot of time.
+
+## Diffusion run information
 * D. See report
 * E. Run ```python diffusion.py```
 * F. Run ```python diffusion.py```
