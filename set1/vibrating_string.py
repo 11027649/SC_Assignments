@@ -12,7 +12,7 @@ def main():
     # variables
     c = 1.0
     dt = 0.0001
-    tmax = 2
+    tmax = 1 #2
     timesteps = math.ceil(tmax/dt)
 
     # global variables needed for animation
@@ -41,11 +41,14 @@ def main():
 
         # animate
         # interval is between frames
-        anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1)
+        anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1) #, blit=True)
+
+        writer = animation.FFMpegWriter(fps=100, extra_args=['-vcodec','libx264'])
+
         plt.show()
         print("animation done")
         # save animation
-        anim.save('results/vids_wave/vibrating_string_'+ current_state.type + '.mp4')
+        anim.save('results/vids_wave/vibrating_string_'+ current_state.type + '.mp4', writer=writer)
         print("animation is saved")
 
 def animate(i):
