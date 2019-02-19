@@ -6,6 +6,9 @@ import matplotlib.animation as animation
 import copy
 import time
 
+import seaborn as sns
+sns.set()
+
 from matplotlib import colors
 
 class DiffusionGrid():
@@ -22,12 +25,12 @@ class DiffusionGrid():
         # save grid at right times for plots later
         self.timesteps = timesteps
         self.time = 0
-        self.save_times = [0, 10, 100, 1000, 10000]
+
+        # the other methods are time independent so we don't want to save these timesteps
+        if method is "Time_Dependent":
+            self.save_times = [0, 10, 100, 1000, 10000]
+
         self.saved_states = {}
-
-        # weight for SOR between 0 and 2
-        self.w = 1
-
         self.method = method
 
         self.initialize()
@@ -42,25 +45,51 @@ class DiffusionGrid():
 
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
+    def set_omega(w):
+        """ Set the weight of omega for the SOR diffusion method. """
+        self.w = w
+
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
 
-        # save info for plots
-        if self.time in self.save_times:
-            self.saved_states[self.time/10000] =  copy.deepcopy(self)
+        converged = False
 
         # call next step for right method
         if self.method is "Time_Dependent":
+
+            # save info for plots
+            if self.time in self.save_times:
+                self.saved_states[self.time/10000] =  copy.deepcopy(self)
+
             self.next_step_time_dependent()
-        elif self.method is "Gauss_Seidel":
-            self.next_step_gauss_seidel()
         elif self.method is "Jacobi":
-            self.next_step_jacobi()
+            converged = self.next_step_jacobi()
+        elif self.method is "Gauss_Seidel":
+            converged = self.next_step_gauss_seidel()
         else:
-            self.next_step_sor()
+            converged = self.next_step_sor()
 
         self.time += 1
+
+        if not self.method == "Time_Dependent":
+            if converged:
+                # use time as amount of steps
+                self.saved_states[self.time/10000] = copy.deepcopy(self)
+
+                # calculate y
+                y = [np.sum(row) for row in self.grid]
+                y = [x/50 for x in y]
+
+                # reverse list for proper plotting
+                y.reverse()
+
+                return y
+
+            # self.time is amount of steps that have been made until converged
+            return converged
+
+
 
     def next_step_time_dependent(self):
         """ Compute concentration in each grid point, according to the time dependent
@@ -74,7 +103,7 @@ class DiffusionGrid():
             # iterate over columsn, first and last are periodic boundaries
             for j in range(self.width):
                 # check if there's an object at this gridpoint
-                if not self.object_grid[i][j] == 1:
+                if not self.object_grid[i][j] == "sink" and not self.object_grid[i][j] == "source":
                     if j == 0:
                         next_state[i][j] = current_state[i][j]\
                                             + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
@@ -103,8 +132,9 @@ class DiffusionGrid():
         """ Compute concentration in each grid point with the Jacobi method. """
 
         current_state = self.grid
-        next_state = copy.copy(self.grid)
-
+        next_state = copy.deepcopy(self.grid)
+        # the biggest difference that can happen is 1
+        max_delta = 0
         # iterate over grid, first row is always concentration 1, last row always 0
         for i in range(1, self.height - 1):
             # iterate over columsn, first and last are periodic boundaries
@@ -125,16 +155,35 @@ class DiffusionGrid():
                                         + current_state[i][j + 1]\
                                         + current_state[i][j - 1])
 
-        self.grid = copy.copy(next_state)
+                delta = next_state[i][j] - current_state[i][j]
+
+                if delta > max_delta:
+                    max_delta = delta
+
+        self.grid = copy.deepcopy(next_state)
+
+        print(max_delta)
+        if max_delta < 10**-5:
+            return True
+        else:
+            return False
+
+
 
     def next_step_gauss_seidel(self):
         """ Compute concentration in each grid point with the gauss seidel method.
             This is a cool method because we can update the grid in place. """
 
+        # biggest difference that can happen is 1
+        max_delta = 0
+
         # iterate over grid, first row is always concentration 1, last row always 0
         for i in range(1, self.height - 1):
             # iterate over columsn, first and last are periodic boundaries
             for j in range(self.width):
+                # save for calculation of delta
+                previous = self.grid[i][j]
+
                 if j == 0:
                     self.grid[i][j] = 1/4 *\
                                         (self.grid[i + 1][j]\
@@ -154,6 +203,16 @@ class DiffusionGrid():
                                         + self.grid[i][j + 1]\
                                         + self.grid[i][j - 1])
 
+                delta = self.grid[i][j] - previous
+
+                if delta > max_delta:
+                    max_delta = delta
+
+        if max_delta < 10**-5:
+            return True
+        else:
+            return False
+
     def next_step_sor(self):
         """ Compute concentration in each grid point with the succesive over
             relaxation method. This method converges only if the weight is between
@@ -161,7 +220,10 @@ class DiffusionGrid():
             relaxation. For w = 1 we recover the Gauss-Seidel iteration. """
 
         current_state = self.grid
-        next_state = copy.copy(self.grid)
+        next_state = copy.deepcopy(self.grid)
+
+        # biggest difference that can happen is 1
+        max_delta = 0
 
         # iterate over grid, first row is always concentration 1, last row always 0
         for i in range(1, self.height - 1):
@@ -189,7 +251,18 @@ class DiffusionGrid():
                                         + next_state[i][j - 1])\
                                         + (1 - self.w) * current_state[i][j]
 
-        self.grid = copy.copy(next_state)
+                delta = next_state[i][j] - current_state[i][j]
+
+                if delta > max_delta:
+                    max_delta = delta
+
+        self.grid = copy.deepcopy(next_state)
+
+        print(max_delta)
+        if max_delta < 10**-5:
+            return True
+        else:
+            return False
 
     def plot_time_frames(self):
         """ Plot the state of the diffusion at different time steps. """
@@ -259,10 +332,11 @@ class DiffusionGrid():
 
         fig.savefig('results/analytic_vs_'+ self.method + '.png', dpi=150)
 
-    def add_object(self, pos, lenx, leny):
+    def add_object(self, pos, lenx, leny, type):
         """ Add objects at the position you want. Can be called several times
-            for multiple objects."""
+            for multiple objects.
+            The type can be sink or source. """
 
         for j in range(pos[1], pos[1] + leny):
             for i in range(pos[0], pos[0] + lenx):
-                self.object_grid[j][i] = 1
+                self.object_grid[j][i] = type

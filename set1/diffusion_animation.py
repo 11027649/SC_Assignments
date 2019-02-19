@@ -30,16 +30,13 @@ def main():
     global current_state, im
 
     # initiate image and diffusion grid
-    # current_state = DiffusionGrid(height, width, D, dt, timesteps, "Time_Dependent")
-    # current_state = DiffusionGrid(height, width, D, dt, timesteps, "Jacobi")
-    # current_state = DiffusionGrid(height, width, D, dt, timesteps, "Gauss_Seidel")
-    current_state = DiffusionGrid(height, width, D, dt, timesteps, "SOR")
+    current_state = DiffusionGrid(height, width, D, dt, timesteps, "Time_Dependent")
 
     # set up figure
     fig = plt.figure()
-    fig.suptitle("Diffusion for:" + current_state.method + "method")
+    fig.suptitle("Diffusion over time, time dependent method")
 
-    im =  plt.imshow(current_state.grid, norm=colors.Normalize(vmin=0,vmax=1))
+    im =  plt.imshow(current_state.grid, interpolation='bicubic', cmap="winter")
 
     # call the animator, blit = True means only redraw changed part
     anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, blit=True, repeat=False)
@@ -48,7 +45,7 @@ def main():
     plt.xticks([])
     plt.yticks([])
     plt.colorbar()
-    # plt.show()
+    plt.show()
 
     anim.save("results/vids_diffusion/diffusion_" + current_state.method + ".mp4")
     print("Saved MP4 of the simulation")

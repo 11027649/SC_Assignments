@@ -1,6 +1,9 @@
 import math
 from DiffusionGrid import DiffusionGrid
 
+import seaborn as sns
+sns.set()
+
 def main():
     ####### Variables
     # diffusion coefficient
@@ -19,17 +22,33 @@ def main():
     tmax = 1
     timesteps = math.ceil(tmax/dt) + 1
 
-    methods = ["Time_Dependent", "Jacobi", "Gauss_Seidel", "SOR"]
+    methods = ["Gauss_Seidel", "SOR", "Jacobi", "Time_Dependent"]
 
     for method in methods:
+        print("method" + method)
         current_state = DiffusionGrid(height, width, D, dt, timesteps, method)
 
         # calculate states
-        for t in range(timesteps):
-            current_state.next_step()
+        if method == "Time_Dependent":
+            for t in range(timesteps):
+                print(t)
+                current_state.next_step()
+
+            current_state.compare_to_analytic_solution()
+        elif method == "SOR":
+            current_state.set_omega(1.85)
+            # for the time independent solutions, calculate next states until converged
+            converged = False
+            while not converged:
+                print(str(current_state.time) + str(converged))
+        else:
+            # for the time independent solutions, calculate next states until converged
+            converged = False
+            while not converged:
+                print(str(current_state.time) + str(converged))
 
         current_state.plot_time_frames()
-        current_state.compare_to_analytic_solution()
+
 
 
 if __name__ == '__main__':
