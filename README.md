@@ -7,6 +7,7 @@ Scientific Computing Assignments
 * [x] ~Height/Width moeten 100 kunnen zijn dat geeft nu een bug dus dat fixen~
 * [x] ~Alle 4 de methodes geven dezelfde resultaten ?~
 * [ ] Colorbar fixen bij de plot met 5 plaatjes (ziet er echt lelijk uit)
+* [ ] How to run our code in the readme
 
 * [x] C.  ~- mp4 is corrupt~ Aanzetten en superlang wachten of kijken of we png kunnen opslaan en ffmpeg gebruiken om filmpje te maken
 * [ ] C. Filmpjes maken
