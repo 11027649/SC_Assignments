@@ -15,23 +15,20 @@ class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
 
-    def __init__(self, height, width, D, dt, timesteps, method):
+    def __init__(self, height, width, D, method):
         self.height = height
         self.width = width
         self.D = D
-        self.dt = dt
+
         self.dx = 1/self.width
-
-        # save grid at right times for plots later
-        self.timesteps = timesteps
         self.time = 0
-
-        # the other methods are time independent so we don't want to save these timesteps
-        if method is "Time_Dependent":
-            self.save_times = [0, 10, 100, 1000, 10000]
 
         self.saved_states = {}
         self.method = method
+
+        # this is needed for the time independent methods
+        self.converged = False
+        self.convergence = []
 
         self.initialize()
 
@@ -45,15 +42,23 @@ class DiffusionGrid():
 
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
-    def set_omega(w):
+    def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
         self.w = w
+
+    def set_time(self, dt, timesteps):
+        """ Set the time settings for Time Dependent Diffusion. """
+
+        self.dt = dt
+        self.timesteps = timesteps
+
+        # save grid at right times for plots later
+        # the other methods are time independent so we don't want to save these timesteps
+        self.save_times = [0, 10, 100, 1000, 10000]
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
-
-        converged = False
 
         # call next step for right method
         if self.method is "Time_Dependent":
@@ -64,16 +69,16 @@ class DiffusionGrid():
 
             self.next_step_time_dependent()
         elif self.method is "Jacobi":
-            converged = self.next_step_jacobi()
+            self.next_step_jacobi()
         elif self.method is "Gauss_Seidel":
-            converged = self.next_step_gauss_seidel()
+            self.next_step_gauss_seidel()
         else:
-            converged = self.next_step_sor()
+            self.next_step_sor()
 
         self.time += 1
 
         if not self.method == "Time_Dependent":
-            if converged:
+            if self.converged:
                 # use time as amount of steps
                 self.saved_states[self.time/10000] = copy.deepcopy(self)
 
@@ -83,12 +88,7 @@ class DiffusionGrid():
 
                 # reverse list for proper plotting
                 y.reverse()
-
-                return y
-
-            # self.time is amount of steps that have been made until converged
-            return converged
-
+                self.dependence_on_y = y
 
 
     def next_step_time_dependent(self):
@@ -162,11 +162,10 @@ class DiffusionGrid():
 
         self.grid = copy.deepcopy(next_state)
 
-        print(max_delta)
+        self.convergence.append(max_delta)
+        # if biggest difference is smaller then epsiolon (given in assignment, it's converged)
         if max_delta < 10**-5:
-            return True
-        else:
-            return False
+            self.converged = True
 
 
 
@@ -207,11 +206,9 @@ class DiffusionGrid():
 
                 if delta > max_delta:
                     max_delta = delta
-
+        self.convergence.append(max_delta)
         if max_delta < 10**-5:
-            return True
-        else:
-            return False
+            self.converged = True
 
     def next_step_sor(self):
         """ Compute concentration in each grid point with the succesive over
@@ -257,26 +254,27 @@ class DiffusionGrid():
                     max_delta = delta
 
         self.grid = copy.deepcopy(next_state)
+        self.convergence.append(max_delta)
 
-        print(max_delta)
         if max_delta < 10**-5:
-            return True
-        else:
-            return False
+            self.converged = True
 
     def plot_time_frames(self):
         """ Plot the state of the diffusion at different time steps. """
 
         fig = plt.figure()
-        fig.suptitle("Diffusion for:" + self.method + "method")
+        fig.suptitle("Diffusion for: " + self.method + " method")
 
         for i,key in enumerate(self.saved_states.keys()):
-            plt.subplot(2,3,i + 1)
+            plt.subplot(1,6,i + 1)
             plt.title("t = " + str(key))
-            plt.imshow(self.saved_states[key].grid, norm=colors.Normalize(vmin=0,vmax=1))
+            im = plt.imshow(self.saved_states[key].grid, norm=colors.Normalize(vmin=0,vmax=1), interpolation='bicubic')
             plt.xticks([])
             plt.yticks([])
-        plt.colorbar()
+
+        # TODO fix colorbar
+        # plt.subplot(1,6, 6)
+        # plt.colorbar()
         plt.show()
         fig.savefig('results/timepoints'+ self.method + "_" + str(time.time()) + '.png', dpi=150)
 
@@ -323,6 +321,8 @@ class DiffusionGrid():
 
                 # reverse list for proper plotting
                 y.reverse()
+                self.dependence_on_y = y
+
                 plt.plot(x,y, label=self.method + " " + str(key))
 
         plt.legend()

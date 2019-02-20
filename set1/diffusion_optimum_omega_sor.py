@@ -27,9 +27,8 @@ def main():
     current_state.set_omega(1.85)
 
     # calculate until converged
-    converged = False
-    while not converged:
-        print(str(current_state.time) + str(converged))
+    while not current_state.converged:
+        print(str(current_state.time) + str(current_state.converged))
 
 if __name__ == '__main__':
     main()
