@@ -20,9 +20,10 @@ def main():
     len_x = 1
     len_y = 1
 
-    methods = ["Jacobi", "Gauss_Seidel", "SOR"]
-    omegas = [1.7, 1.8, 1.9, 1.914]
-
+    methods = ["SOR"]
+    # omegas = [1.7, 1.8, 1.9, 1.914]
+    omegas = [1.914489597989488]
+    
     linear_dependence = {}
     convergence_per_iteration = {}
 
@@ -36,6 +37,9 @@ def main():
                 # for the values of omega
                 current_state.set_omega(omega)
                 # for the time independent solutions, calculate next states until converged
+                current_state.next_step()
+                print(current_state.grid)
+
                 while not current_state.converged:
                     current_state.next_step()
 

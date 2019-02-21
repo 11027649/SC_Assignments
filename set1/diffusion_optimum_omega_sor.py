@@ -1,34 +1,38 @@
 import math
+
 from DiffusionGrid import DiffusionGrid
+import matplotlib.pyplot as plt
+import numpy as np
+
+import time
+import csv
 
 import seaborn as sns
 sns.set()
 
 def main():
-    ####### Variables
-    # diffusion coefficient
     D = 1
+    gridsize = 50
 
-    # divide grid in 50 discrete steps
-    height = 50
-    width = 50
+    gridsizes = np.arange(75, 150, 5)
 
-    # actual lengths are 1
-    len_x = 1
-    len_y = 1
+    omegas = np.arange(1.700, 1.999, 0.001)
 
-    # time stuff
-    dt = 0.0001
-    tmax = 1
+    optimum_omegas = []
 
-    current_state = DiffusionGrid(height, width, D, dt, timesteps, "SOR")
+    for gridsize in gridsizes:
+        steps = []
+        for omega in omegas:
+            print("omega", omega)
+            current_state = DiffusionGrid(gridsize, gridsize, D, "SOR")
+            current_state.set_omega(omega)
 
-    # set weight
-    current_state.set_omega(1.85)
+            while not current_state.converged:
+                current_state.next_step()
 
-    # calculate until converged
-    while not current_state.converged:
-        print(str(current_state.time) + str(current_state.converged))
+            with open("omega_results.csv", 'a') as resultsfile:
+                csvwriter = csv.writer(resultsfile, delimiter=',')
+                csvwriter.writerow([gridsize, omega, current_state.time])
 
 if __name__ == '__main__':
     main()

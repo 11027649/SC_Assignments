@@ -77,18 +77,17 @@ class DiffusionGrid():
 
         self.time += 1
 
-        if not self.method == "Time_Dependent":
-            if self.converged:
-                # use time as amount of steps
-                self.saved_states[self.time/10000] = copy.deepcopy(self)
+        if self.converged and not self.method == "Time_Dependent":
+            # use time as amount of steps
+            self.saved_states[self.time/10000] = copy.deepcopy(self)
 
-                # calculate y
-                y = [np.sum(row) for row in self.grid]
-                y = [x/50 for x in y]
+            # calculate y
+            y = [np.sum(row) for row in self.grid]
+            y = [x/50 for x in y]
 
-                # reverse list for proper plotting
-                y.reverse()
-                self.dependence_on_y = y
+            # reverse list for proper plotting
+            y.reverse()
+            self.dependence_on_y = y
 
 
     def next_step_time_dependent(self):
@@ -102,29 +101,27 @@ class DiffusionGrid():
         for i in range(1, self.height - 1):
             # iterate over columsn, first and last are periodic boundaries
             for j in range(self.width):
-                # check if there's an object at this gridpoint
-                if not self.object_grid[i][j] == "sink" and not self.object_grid[i][j] == "source":
-                    if j == 0:
-                        next_state[i][j] = current_state[i][j]\
-                                            + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
-                                            + current_state[i - 1][j]\
-                                            + current_state[i][j + 1]\
-                                            + current_state[i][self.width - 1]\
-                                            - 4 * current_state[i][j])
-                    elif j == self.width - 1:
-                        next_state[i][j] = current_state[i][j]\
-                                            + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
-                                            + current_state[i - 1][j]\
-                                            + current_state[i][0]\
-                                            + current_state[i][j - 1]\
-                                            - 4 * current_state[i][j])
-                    else:
-                        next_state[i][j] = current_state[i][j]\
-                                            + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
-                                            + current_state[i - 1][j]\
-                                            + current_state[i][j + 1]\
-                                            + current_state[i][j - 1]\
-                                            - 4 * current_state[i][j])
+                if j == 0:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][j + 1]\
+                                        + current_state[i][self.width - 1]\
+                                        - 4 * current_state[i][j])
+                elif j == self.width - 1:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][0]\
+                                        + current_state[i][j - 1]\
+                                        - 4 * current_state[i][j])
+                else:
+                    next_state[i][j] = current_state[i][j]\
+                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + current_state[i - 1][j]\
+                                        + current_state[i][j + 1]\
+                                        + current_state[i][j - 1]\
+                                        - 4 * current_state[i][j])
 
         self.grid = copy.copy(next_state)
 
@@ -167,8 +164,6 @@ class DiffusionGrid():
         if max_delta < 10**-5:
             self.converged = True
 
-
-
     def next_step_gauss_seidel(self):
         """ Compute concentration in each grid point with the gauss seidel method.
             This is a cool method because we can update the grid in place. """
@@ -206,7 +201,9 @@ class DiffusionGrid():
 
                 if delta > max_delta:
                     max_delta = delta
+
         self.convergence.append(max_delta)
+
         if max_delta < 10**-5:
             self.converged = True
 
@@ -214,46 +211,47 @@ class DiffusionGrid():
         """ Compute concentration in each grid point with the succesive over
             relaxation method. This method converges only if the weight is between
             zero and two. For weight smaller then 1, the method is called under
-            relaxation. For w = 1 we recover the Gauss-Seidel iteration. """
-
-        current_state = self.grid
-        next_state = copy.deepcopy(self.grid)
+            relaxation. For w = 1 we recover the Gauss-Seidel iteration.
+            The updates can be performed in place. """
 
         # biggest difference that can happen is 1
         max_delta = 0
 
         # iterate over grid, first row is always concentration 1, last row always 0
         for i in range(1, self.height - 1):
-            # iterate over columsn, first and last are periodic boundaries
+            # iterate over columns, first and last are periodic boundaries
             for j in range(self.width):
-                if j == 0:
-                    next_state[i][j] = self.w/4 *\
-                                        (current_state[i + 1][j]\
-                                        + next_state[i - 1][j]\
-                                        + current_state[i][j + 1]\
-                                        + next_state[i][self.width - 1])\
-                                        + (1 - self.w) * current_state[i][j]
-                elif j == self.width - 1:
-                    next_state[i][j] = self.w/4 *\
-                                        (current_state[i + 1][j]\
-                                        + next_state[i - 1][j]\
-                                        + current_state[i][0]\
-                                        + next_state[i][j - 1])\
-                                        + (1 - self.w) * current_state[i][j]
-                else:
-                    next_state[i][j] = self.w/4 *\
-                                        (current_state[i + 1][j]\
-                                        + next_state[i - 1][j]\
-                                        + current_state[i][j + 1]\
-                                        + next_state[i][j - 1])\
-                                        + (1 - self.w) * current_state[i][j]
+                previous = self.grid[i][j]
 
-                delta = next_state[i][j] - current_state[i][j]
+                # check if there's an object at this grid point
+                if not self.object_grid[i][j] == 1:
+                    if j == 0:
+                        self.grid[i][j] = self.w/4 *\
+                                            (self.grid[i + 1][j]\
+                                            + self.grid[i - 1][j]\
+                                            + self.grid[i][j + 1]\
+                                            + self.grid[i][self.width - 1])\
+                                            + (1 - self.w) * self.grid[i][j]
+                    elif j == self.width - 1:
+                        self.grid[i][j] = self.w/4 *\
+                                            (self.grid[i + 1][j]\
+                                            + self.grid[i - 1][j]\
+                                            + self.grid[i][0]\
+                                            + self.grid[i][j - 1])\
+                                            + (1 - self.w) * self.grid[i][j]
+                    else:
+                        self.grid[i][j] = self.w/4 *\
+                                            (self.grid[i + 1][j]\
+                                            + self.grid[i - 1][j]\
+                                            + self.grid[i][j + 1]\
+                                            + self.grid[i][j - 1])\
+                                            + (1 - self.w) * self.grid[i][j]
+
+                delta = abs(self.grid[i][j] - previous)
 
                 if delta > max_delta:
                     max_delta = delta
 
-        self.grid = copy.deepcopy(next_state)
         self.convergence.append(max_delta)
 
         if max_delta < 10**-5:
@@ -266,7 +264,8 @@ class DiffusionGrid():
         fig.suptitle("Diffusion for: " + self.method + " method")
 
         for i,key in enumerate(self.saved_states.keys()):
-            plt.subplot(1,6,i + 1)
+            if len(self.saved_states.keys()) > 1:
+                plt.subplot(1,6,i + 1)
             plt.title("t = " + str(key))
             im = plt.imshow(self.saved_states[key].grid, norm=colors.Normalize(vmin=0,vmax=1), interpolation='bicubic')
             plt.xticks([])
@@ -332,11 +331,11 @@ class DiffusionGrid():
 
         fig.savefig('results/analytic_vs_'+ self.method + '.png', dpi=150)
 
-    def add_object(self, pos, lenx, leny, type):
+    def add_object(self, pos, lenx, leny):
         """ Add objects at the position you want. Can be called several times
             for multiple objects.
             The type can be sink or source. """
 
         for j in range(pos[1], pos[1] + leny):
             for i in range(pos[0], pos[0] + lenx):
-                self.object_grid[j][i] = type
+                self.object_grid[j][i] = 1
