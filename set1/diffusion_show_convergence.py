@@ -1,3 +1,16 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This file is part of a program that is used to solve some partial differential
+# equations. The program has been developed for the course Scientific Computing
+# in the master Computational Science at the UvA february/march 2019.
+#
+# This part contains the code to test our time independent methods, Jacbi,
+# Gauss-Seidel and SOR, by comparing their linear dependence on y (when converged)
+# to the linear dependence on y of the analytic solution. This is exercise H.
+#
+# Run: python diffusion_show_convergence.py
+# Romy Meester & Natasja Wezel
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import math
 from DiffusionGrid import DiffusionGrid
 import time
@@ -13,32 +26,30 @@ def main():
     D = 1
 
     # divide grid in 50 discrete steps
-    height = 50
-    width = 50
+    gridsize = 50
 
     # actual lengths are 1
     len_x = 1
     len_y = 1
 
-    methods = ["SOR"]
-    # omegas = [1.7, 1.8, 1.9, 1.914]
-    omegas = [1.914489597989488]
-    
+    methods = ["Jacobi", "Gauss_Seidel", "SOR"]
+    # methods = ["SOR"]
+    omegas = [1.7, 1.8, 1.9, 1.914]
+
     linear_dependence = {}
     convergence_per_iteration = {}
 
     for method in methods:
 
-        current_state = DiffusionGrid(height, width, D, method)
+        current_state = DiffusionGrid(gridsize, D, method)
 
         if method == "SOR":
             for omega in omegas:
-                current_state = DiffusionGrid(height, width, D, method)
+                current_state = DiffusionGrid(gridsize, D, method)
                 # for the values of omega
                 current_state.set_omega(omega)
                 # for the time independent solutions, calculate next states until converged
                 current_state.next_step()
-                print(current_state.grid)
 
                 while not current_state.converged:
                     current_state.next_step()
@@ -58,32 +69,18 @@ def main():
             linear_dependence[method] = current_state.dependence_on_y
             convergence_per_iteration[method] = current_state.convergence
 
-    linear_dependence["Analytic"] = analytic_solution(D, width)
-    print(linear_dependence)
+    analytic = analytic_solution(D, gridsize)
 
-    x = np.linspace(0.,1.,width)
+    x = np.linspace(0.,1.,gridsize)
 
-    ###### Plot linear dependence on y
-    fig = plt.figure()
-    plt.title("Linear dependence on y")
-    plt.ylabel("Concentration")
-    plt.xlabel("Y coordinate diffusion grid")
-    for key in linear_dependence.keys():
-        plt.plot(x, linear_dependence[key], label=key)
-
-    plt.legend()
-    plt.show()
-    fig.savefig('results/linear_dependence'+ str(time.time()) + '.png', dpi=150)
-
-
-    ######3 PLOT
+    ###### PLOT
     fig = plt.figure()
     plt.title("Linear dependence on y\n Diffence between Analytic and Time-Independent methods")
     plt.ylabel("Difference in concentration")
     plt.xlabel("Y coordinate diffusion grid")
 
     for key in linear_dependence.keys():
-        list = [linear_dependence[key][i] - linear_dependence["Analytic"][i] for i in range(len(linear_dependence["Analytic"]))]
+        list = [abs(linear_dependence[key][i] - analytic[i]) for i in range(len(analytic))]
         plt.plot(x, list, label=key)
 
     plt.legend()

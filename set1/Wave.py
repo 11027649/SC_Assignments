@@ -1,3 +1,17 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This file is part of a program that is used to solve some partial differential
+# equations. The program has been developed for the course Scientific Computing
+# in the master Computational Science at the UvA february/march 2019.
+#
+# This part contains the class for a Wave. It contains the three different
+# starting positions and the next step function. It also contains some code
+# that can be used for plotting the wave at different timesteps.
+#
+# You can't run this class on its own, but it is used in the vibrating string
+# program.
+# Romy Meester & Natasja Wezel
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import math
 
 import matplotlib.pyplot as plt
@@ -9,7 +23,7 @@ import copy
 class Wave():
     def __init__(self, type, c, dt):
         self.type = type
-        self.x = np.linspace(0, 1, 200)
+        self.x = np.linspace(0, 1, 100)
         self.dx = 1/len(self.x)
         self.dt = dt
 
@@ -89,5 +103,5 @@ class Wave():
         plt.title("Wave at different times")
         plt.legend(loc="upper right")
         plt.show()
-        # fig.set_size_inches(7,3)
+
         fig.savefig('results/pics_wave/vibrating_string_'+ self.type + '.png', dpi=150)

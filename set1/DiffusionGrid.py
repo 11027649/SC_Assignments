@@ -1,3 +1,18 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This file is part of a program that is used to solve some partial differential
+# equations. The program has been developed for the course Scientific Computing
+# in the master Computational Science at the UvA february/march 2019.
+#
+# This part contains the code for the diffusion grid. It's most important
+# properties are it's width and height (the diffusion grid is always a square)
+# and the diffusion constant. It contains code for all the different methods that
+# are used to solve the diffusion equation, including the analytic method.
+#
+# You can't run this class on its own, but it is used in all the other diffusion
+# files.
+# Romy Meester & Natasja Wezel
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import numpy as np
 import math
 import pandas
@@ -15,9 +30,9 @@ class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
 
-    def __init__(self, height, width, D, method):
-        self.height = height
-        self.width = width
+    def __init__(self, gridsize, D, method):
+        self.height = gridsize
+        self.width = gridsize
         self.D = D
 
         self.dx = 1/self.width
@@ -52,9 +67,10 @@ class DiffusionGrid():
         self.dt = dt
         self.timesteps = timesteps
 
-        # save grid at right times for plots later
+        # save grid at right times for plots later (right times for timesteps of
+        # 0.00001)
         # the other methods are time independent so we don't want to save these timesteps
-        self.save_times = [0, 10, 100, 1000, 10000]
+        self.save_times = [0, 100, 1000, 10000, 100000]
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
@@ -65,7 +81,7 @@ class DiffusionGrid():
 
             # save info for plots
             if self.time in self.save_times:
-                self.saved_states[self.time/10000] =  copy.deepcopy(self)
+                self.saved_states[self.time/100000] =  copy.deepcopy(self)
 
             self.next_step_time_dependent()
         elif self.method is "Jacobi":
@@ -79,7 +95,7 @@ class DiffusionGrid():
 
         if self.converged and not self.method == "Time_Dependent":
             # use time as amount of steps
-            self.saved_states[self.time/10000] = copy.deepcopy(self)
+            self.saved_states[self.time/100000] = copy.deepcopy(self)
 
             # calculate y
             y = [np.sum(row) for row in self.grid]
@@ -88,7 +104,6 @@ class DiffusionGrid():
             # reverse list for proper plotting
             y.reverse()
             self.dependence_on_y = y
-
 
     def next_step_time_dependent(self):
         """ Compute concentration in each grid point, according to the time dependent
@@ -265,15 +280,14 @@ class DiffusionGrid():
 
         for i,key in enumerate(self.saved_states.keys()):
             if len(self.saved_states.keys()) > 1:
-                plt.subplot(1,6,i + 1)
+                plt.subplot(2,3,i + 1)
             plt.title("t = " + str(key))
             im = plt.imshow(self.saved_states[key].grid, norm=colors.Normalize(vmin=0,vmax=1), interpolation='bicubic')
             plt.xticks([])
             plt.yticks([])
 
         # TODO fix colorbar
-        # plt.subplot(1,6, 6)
-        # plt.colorbar()
+        plt.colorbar()
         plt.show()
         fig.savefig('results/timepoints'+ self.method + "_" + str(time.time()) + '.png', dpi=150)
 
@@ -281,13 +295,13 @@ class DiffusionGrid():
         """ This function contains a function to calculate the analytic solution
             for the diffusion equation. """
 
-        # what is this M lol
+        # TODO what is this M lol
         M = 10
         x = np.linspace(0.,1.,self.width)
 
         self.analytic_solutions = {}
         for t in self.save_times:
-            t = t/10000
+            t = t/100000
             if not t == 0:
                 # make a list with zeros
                 y = [0]*len(x)
@@ -308,10 +322,12 @@ class DiffusionGrid():
         fig = plt.figure()
         plt.grid(True)
 
-        for key in self.analytic_solutions.keys():
-            plt.plot(x, self.analytic_solutions[key], label=key)
+        colors=["skyblue", "darkcyan", "violet", "purple"]
 
-        for key in self.saved_states.keys():
+        for i,key in enumerate(self.analytic_solutions.keys()):
+            plt.plot(x, self.analytic_solutions[key], label="Analytic " + str(key), color=colors[i])
+
+        for i,key in enumerate(self.saved_states.keys()):
             if not key == 0:
                 grid = self.saved_states[key].grid
                 # calculate y
@@ -322,7 +338,7 @@ class DiffusionGrid():
                 y.reverse()
                 self.dependence_on_y = y
 
-                plt.plot(x,y, label=self.method + " " + str(key))
+                plt.plot(x,y, label=self.method + " " + str(key), dashes=[2,2], color=colors[i - 1], linewidth=3)
 
         plt.legend()
         plt.title("Comparison of solutions")
