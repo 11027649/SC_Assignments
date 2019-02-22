@@ -29,14 +29,14 @@ def main():
     current_state = DiffusionGrid(gridsize, D, "SOR")
 
     # take best omega, calculated in previous exercise
-    current_state.set_omega(1.91)
+    current_state.set_omega(1.914)
 
     ## OBJECTS: one big square
-    current_state.add_object((10, 10), 30, 5)
+    # current_state.add_object((10, 10), 30, 5)
 
     ## OBJECTS: two small squares
-    # current_state.add_object((10, 10), 5, 5)
-    # current_state.add_object((35, 10), 5, 5)
+    current_state.add_object((10, 10), 5, 5)
+    current_state.add_object((35, 10), 5, 5)
 
     #### OBJECTS: triangle
     # for i in range(1, 15):
@@ -51,7 +51,8 @@ def main():
         current_state.next_step()
 
     # see what it looks like
-    current_state.plot_time_frames()
+    # current_state.plot_time_frames()
+    print(current_state.time)
 
 
 

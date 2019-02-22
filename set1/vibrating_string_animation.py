@@ -7,7 +7,8 @@
 # of the vibrating string.
 #
 # Run this file by python vibrating_string_animation.py. Comment/uncomment
-# the right starting position of the wave. Remember to be patient, saving the
+# the right starting position of the wave. For the 5pi constrained domain, you can
+# take a smaller timestep for a higher quality. Remember to be patient, saving the
 # mp4 of your animation can take a lot of time.
 # Romy Meester & Natasja Wezel
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -27,12 +28,12 @@ def main():
     c = 1.0
 
     # pick your type
-    type = "2pi"
-    # type = "5pi"
+    # type = "2pi"
+    type = "5pi"
     # type = "5pi_constrained_domain"
 
     tmax = 1
-    dt = 0.005
+    dt = 0.01
 
     timesteps = math.ceil(tmax/dt)
 
@@ -53,7 +54,7 @@ def main():
     # interval is between frames
     anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1) #, blit=True)
 
-    writer = animation.FFMpegWriter(fps=500, extra_args=['-vcodec','libx264'])
+    writer = animation.FFMpegWriter(fps=250, extra_args=['-vcodec','libx264'])
 
     plt.show()
 

@@ -79,7 +79,7 @@ class Wave():
         self.y_previous = copy.copy(self.y_current)
         self.y_current = copy.copy(y_next)
 
-        if self.timestep % 1000 is 0:
+        if self.timestep % 10000 is 0:
             self.timeframes[self.timestep] = copy.copy(self.y_current)
 
         self.timestep += 1

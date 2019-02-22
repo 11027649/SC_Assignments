@@ -1,4 +1,6 @@
 # Set 1
+## Setup
+Download the folder from GitHub. For all the necessary packages, run ```pip install -r requirements.txt```
 
 ## Vibrating string
 * A. For the equation, see the report.

@@ -25,7 +25,7 @@ def main():
     D = 1
     gridsize = 50
 
-    omegas = np.arange(1.8700, 1.999, 0.001)
+    omegas = np.arange(1.870, 1.930, 0.001)
 
     best_omega = math.inf
     best_timestep = math.inf
@@ -49,7 +49,7 @@ def main():
             best_timestep = current_state.time
             best_omega = omega
 
-    print("best omega", best_omega)
+        print("best omega", best_omega, best_timestep)
 
 
 

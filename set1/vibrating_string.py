@@ -24,13 +24,13 @@ from Wave import Wave
 def main():
     # variables
     c = 1.0
-    dt = 0.003
+    dt = 0.001
     tmax = 100
     timesteps = math.ceil(tmax/dt)
 
     # pick your type
-    type = "2pi"
-    # type = "5pi"
+    # type = "2pi"
+    type = "5pi"
     # type = "5pi_constrained_domain"
 
     # global variables needed for animation
