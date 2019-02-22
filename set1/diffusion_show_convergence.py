@@ -85,7 +85,7 @@ def main():
 
     plt.legend()
     plt.show()
-    fig.savefig('results/difference_linear_dependence' + str(time.time()) + '.png', dpi=150)
+    # fig.savefig('results/difference_linear_dependence' + str(time.time()) + '.png', dpi=150)
 
 
     ####### Plot convergence per iteration
@@ -99,7 +99,7 @@ def main():
 
     plt.legend()
     plt.show()
-    fig.savefig('results/convergence_per_iteration' + str(time.time()) + '.png', dpi=150)
+    # fig.savefig('results/convergence_per_iteration' + str(time.time()) + '.png', dpi=150)
 
 def analytic_solution(D, width):
     M = 10

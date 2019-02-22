@@ -59,10 +59,10 @@ def main():
     plt.xticks([])
     plt.yticks([])
     plt.colorbar()
-    # plt.show()
+    plt.show()
 
-    anim.save("results/vids_diffusion/diffusion_" + current_state.method + ".mp4", fps=200)
-    print("Saved MP4 of the simulation")
+    # anim.save("results/vids_diffusion/diffusion_" + current_state.method + ".mp4", fps=200)
+    # print("Saved MP4 of the simulation")
 
 
 def animate(i):

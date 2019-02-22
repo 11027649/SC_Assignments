@@ -104,4 +104,4 @@ class Wave():
         plt.legend(loc="upper right")
         plt.show()
 
-        fig.savefig('results/pics_wave/vibrating_string_'+ self.type + '.png', dpi=150)
+        # fig.savefig('results/pics_wave/vibrating_string_'+ self.type + '.png', dpi=150)

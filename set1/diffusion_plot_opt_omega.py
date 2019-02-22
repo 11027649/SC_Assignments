@@ -44,7 +44,7 @@ def main():
     plt.plot(range(10,100,5), best_omegas)
 
     plt.show()
-    fig.savefig("results/optimum_omega.png", dpi=150)
+    # fig.savefig("results/optimum_omega.png", dpi=150)
 
 
 if __name__ == '__main__':

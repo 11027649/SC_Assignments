@@ -52,10 +52,5 @@ def main():
         print("best omega", best_omega, best_timestep)
 
 
-
-
-
-
-
 if __name__ == '__main__':
     main()
