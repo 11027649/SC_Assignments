@@ -17,8 +17,6 @@ def main():
 
     # best omega from previous assignment
     omega = 1.914
-    # methods = ["SOR", "MC"]
-    methods = ["SOR"]
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white'])
@@ -27,11 +25,8 @@ def main():
 
     global fig, im, dla
 
-    for method in methods:
-        dla = DiffusionGrid(N, eta, method)
-
-        if method == "SOR":
-            dla.set_omega(omega)
+    dla = DiffusionGrid(N, eta)
+    dla.set_omega(omega)
 
     # set up figure
     fig = plt.figure()

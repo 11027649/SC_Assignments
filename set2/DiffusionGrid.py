@@ -32,7 +32,7 @@ class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
 
-    def __init__(self, gridsize, eta, method):
+    def __init__(self, gridsize, eta):
         self.height = gridsize
         self.width = gridsize
         self.eta = eta
@@ -40,7 +40,6 @@ class DiffusionGrid():
         self.step = 0
 
         self.saved_states = {}
-        self.method = method
 
         self.reached_boundaries = False
         self.candidates = []
@@ -74,10 +73,7 @@ class DiffusionGrid():
             method. """
 
         # call next step for right method
-        if self.method is "SOR":
-            self.next_step_sor()
-        else:
-            self.next_step_MC()
+        self.next_step_sor()
 
         self.step += 1
 
@@ -132,7 +128,8 @@ class DiffusionGrid():
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= concentration**self.eta/denominator:
-                # add to objectsy                self.object_grid[x][y] = 1y
+                # add to object            
+                self.object_grid[y][x] = 1
                 # remove from candidates
                 self.candidates.remove(coord)
 
@@ -189,7 +186,7 @@ class DiffusionGrid():
         concentration = 0
 
         for coord in self.candidates:
-            concentration = concentration + self.grid[coord[0]][coord[1]] ** self.eta
+            concentration = concentration + self.grid[coord[1]][coord[0]] ** self.eta
 
         return concentration
 
