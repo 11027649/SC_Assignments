@@ -32,7 +32,7 @@ class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
 
-    def __init__(self, gridsize, eta):
+    def __init__(self, gridsize, eta, method):
         self.height = gridsize
         self.width = gridsize
         self.eta = eta
@@ -40,6 +40,7 @@ class DiffusionGrid():
         self.step = 0
 
         self.saved_states = {}
+        self.method = method
 
         self.reached_boundaries = False
         self.candidates = []
@@ -70,7 +71,11 @@ class DiffusionGrid():
         """ Compute concentration in each grid point according to the right
             method. """
 
-        self.next_step_sor()
+        # call next step for right method
+        if self.method is "SOR":
+            self.next_step_sor()
+        else:
+            self.next_step_MC()
 
         self.step += 1
 
@@ -140,6 +145,33 @@ class DiffusionGrid():
 
         # check if diffusion has reached boundaries
         self.check_boundaries()
+
+    def next_step_MC(self):
+        """Compute the next step with the Monte Carlo method. """
+        #NEXT STEP
+        for i in range(self.height):
+            for j in range(self.width):
+                return self.grid[i][j]
+        #SOR AANPASSEN ZONDER SINK EN SOURCE?
+
+        # calculate total concentration of candidates
+        denominator = self.candidates_concentration()
+        print(denominator)
+        for coord in self.candidates:
+            x = coord[0]
+            y = coord[1]
+
+            concentration = self.grid[x][y]
+
+            # # check if it aggregates
+            # if #check whether its a neighbour
+            #     # add to objects
+            #     self.object_grid[x][y] = 1
+            #
+            #     # remove from candidates
+            #     self.candidates.remove(coord)
+            # elif #check out of bound: same as self.check_boundaries():??
+
 
     def check_boundaries(self):
         """ A method to check if the diffusion has reached the boundaries of the
