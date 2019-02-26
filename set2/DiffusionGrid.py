@@ -53,15 +53,17 @@ class DiffusionGrid():
 
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
+        # initialize top with concentration 1
+        for i in range(0, self.width):
+            self.grid[0][i] = 1
+
         # initalize object_grid with a seed
-        self.object_grid[int(self.width / 2)][int(self.height / 2)] = 1
-        self.grid[int(self.width / 2)][int(self.height / 2)] = 1
+        self.object_grid[self.height -1][int(self.width / 2)] = 1
 
         # initialize candidate list
-        self.candidates.extend([(int(self.width / 2), int(self.height / 2) - 1),\
-                                (int(self.width / 2), int(self.height / 2) + 1),\
-                                (int(self.width / 2) - 1, int(self.height / 2)),\
-                                (int(self.width / 2) + 1, int(self.height / 2))])
+        self.candidates.extend([(int(self.width / 2), self.height - 2),\
+                                (int(self.width / 2) - 1, self.height - 1),\
+                                (int(self.width / 2) + 1, self.height - 1)])
 
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
@@ -121,18 +123,16 @@ class DiffusionGrid():
 
         # calculate total concentration of candidates
         denominator = self.candidates_concentration()
-        print(denominator)
+
         for coord in self.candidates:
             x = coord[0]
             y = coord[1]
 
-            concentration = self.grid[x][y]
+            concentration = self.grid[y][x]
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= concentration**self.eta/denominator:
-                # add to objects
-                self.object_grid[x][y] = 1
-
+                # add to objectsy                self.object_grid[x][y] = 1y
                 # remove from candidates
                 self.candidates.remove(coord)
 
