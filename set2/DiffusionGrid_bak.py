@@ -21,6 +21,8 @@ import matplotlib.animation as animation
 import copy
 import time
 
+# from numba import jitclass
+
 import seaborn as sns
 sns.set()
 
@@ -41,17 +43,30 @@ class DiffusionGrid():
         self.converged = False
         self.convergence = []
 
+        self.saved_states = {}
+
+        self.reached_boundaries = False
+        self.candidates = []
+
         self.initialize()
 
     def initialize(self):
         """" Initalize grid """
         self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
+        self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
+
         # initialize top with concentration 1
         for i in range(0, self.width):
             self.grid[0][i] = 1
 
-        self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
+        # initalize object_grid with a seed
+        self.object_grid[self.height -1][int(self.width / 2)] = 0
+
+        # initialize candidate list
+        self.candidates.extend([(int(self.width / 2), self.height - 2),\
+                                (int(self.width / 2) - 1, self.height - 1),\
+                                (int(self.width / 2) + 1, self.height - 1)])
 
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
@@ -61,6 +76,7 @@ class DiffusionGrid():
         """ Compute concentration in each grid point according to the right
             method. """
 
+        # call next step for right method
         self.next_step_sor()
 
         self.step += 1
@@ -112,3 +128,86 @@ class DiffusionGrid():
 
         if max_delta < 10**-5:
             self.converged = True
+
+            print(self.time)
+
+    def aggregation(self):
+        """ This is a method that checks if the things aggregate. """
+
+        # calculate total concentration of candidates
+        denominator = self.candidates_concentration()
+
+        new_candidates = []
+
+        for coord in self.candidates:
+            x = coord[0]
+            y = coord[1]
+
+            concentration = self.grid[y][x]
+
+            print(concentration, self.eta, denominator)
+
+            # check if it aggregates
+            if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:
+                # add to object
+                self.object_grid[y][x] = 1
+                self.grid[y][x] = 0
+                # remove from candidates
+                self.candidates.remove(coord)
+
+                # add new candidates if not at boundaries and if not already in there
+                new_candidates.extend([(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)])
+
+        for new_coord in new_candidates:
+            if not new_coord in self.candidates\
+                    and new_coord[0] <= self.width - 1\
+                    and new_coord[0] >= 0\
+                    and new_coord[1] <= self.height -1\
+                    and new_coord[1] >= 0:
+
+                self.candidates.append(new_coord)
+
+        self.converged = False
+
+
+    def check_boundaries(self):
+        """ A method to check if the diffusion has reached the boundaries of the
+            grid. """
+
+        for i in range(self.width):
+            if not self.grid[0][i] == 0 or not self.grid[i][0] == 0 or not\
+                    self.grid[self.width - 1][i] == 0 or not self.grid[i][self.width - 1] == 0:
+
+                self.reached_boundaries = True
+
+    def candidates_concentration(self):
+        """ Calculates total concentration of all candidates together. """
+
+        concentration = 0
+
+        for coord in self.candidates:
+            plus = self.grid[coord[1]][coord[0]]
+            if self.grid[coord[1]][coord[0]] < 0:
+                plus = 0
+            concentration = concentration + plus**self.eta
+
+        return concentration
+
+    def plot_time_frames(self):
+        """ Plot the state of the diffusion at different time steps. """
+
+        fig = plt.figure()
+        fig.suptitle("Diffusion for: " + self.method + " method")
+
+        for i,key in enumerate(self.saved_states.keys()):
+            if len(self.saved_states.keys()) > 1:
+                plt.subplot(2,3,i + 1)
+            plt.title("t = " + str(key))
+            im = plt.imshow(self.saved_states[key].grid, norm=colors.Normalize(vmin=0,vmax=1), interpolation='bicubic')
+            plt.xticks([])
+            plt.yticks([])
+
+        # TODO fix colorbar
+        plt.colorbar()
+        plt.show()
+        fig.savefig('results/timepoints'+ self.method + "_" + str(time.time()) + '.png', dpi=150)
