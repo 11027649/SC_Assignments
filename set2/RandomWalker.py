@@ -17,11 +17,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import copy
 import time
+import random
 
 class RandomWalker():
     """ This is a class that contains the RandomWalker aka Monte Carlo simulation."""
 
-    def __init__(self, gridsize, eta):
+    def __init__(self, gridsize):
         self.height = gridsize
         self.width = gridsize
 
@@ -32,59 +33,65 @@ class RandomWalker():
         self.reached_boundaries = False
         self.candidates = []
 
+
         self.initialize()
 
     def initialize(self):
         """" Initalize grid """
         self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
-        self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
+        self.walker_x = random.choice(range(self.width))
+        self.walker_y = 0
 
         # initialize random walker seed with concentration 2 on top of grid
-        for i in range(0, self.width):
-            self.grid[0][random.random(i, self.width)] = 2
+        self.grid[self.walker_y][self.walker_x] = 2
 
-        # initalize object_grid with a seed
-        self.object_grid[self.height -1][int(self.width / 2)] = 1
+        # initalize object seed at bottom of grid
+        self.grid[self.height -1][int(self.width / 2)] = 1
 
-        # initialize candidate list
-        self.candidates.extend([(int(self.width / 2), self.height - 2),\
-                                (int(self.width / 2) - 1, self.height - 1),\
-                                (int(self.width / 2) + 1, self.height - 1)])
-
-    def next_step(self):
-        """ Compute concentration in each grid point according to the right
-            method. """
-
-        # call next step for right method
-        self.next_step_random()
-
-        self.step += 1
 
     def next_step_random(self):
         """Compute the next step with the Monte Carlo method. """
+        self.step += 1
 
+        self.define_next_walker()
+        # out of bound - periodic boundary
+        if self.next_walker_x < 0:
+            self.next_walker_x = self.width - 1
+        elif self.next_walker_x  == self.width:
+            self.next_walker_x = 0
+
+        # out of bound
+        elif self.next_walker_y < 0 or self.next_walker_y == self.height:
+            # new next walker
+
+    def define_next_walker(self):
         # choose direction
         choose = ["left", "right", "up", "down"]
         direction = random.choice(choose)
         print(direction)
 
-        # iterate over grid, first row is always concentration 1
-        for i in range(self.height - 1):
-            for j in range(self.width):
+        self.next_walker_x = self.walker_x
+        self.next_walker_y = self.walker_y
 
-                # check if there's an object at this grid point
-                if not self.object_grid[i][j] == 1:
-                    if direction is "left":
-                        next_step = self.grid[i-1][j]
-                    elif direction is "right":
-                        next_step = self.grid[i+1][j]
-                    elif direction is "up":
-                        next_step = self.grid[i][j+1]
-                    else:
-                        next_step = self.grid[i][j-1]
+        # decide next step
+        if direction is "left":
+            self.next_walker_x = self.walker_x - 1
+        elif direction is "right":
+            self.next_walker_x = self.walker_x + 1
+        elif direction is "up":
+            self.next_walker_y = self.walker_y + 1
+        else:
+            self.next_walker_y = self.walker_y - 1
 
-                        
+
+
+# check if move is possible -- boundary or object
+            # # check if there's an object at this grid point
+            # if not self.grid[i][j] == 1:
+                # check out of bound
+                # check periodic boundaries
+                # if next_step =
 
             # # check if it aggregates
             # if #check whether its a neighbour
