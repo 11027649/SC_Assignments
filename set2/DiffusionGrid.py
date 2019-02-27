@@ -147,33 +147,6 @@ class DiffusionGrid():
         # check if diffusion has reached boundaries
         self.check_boundaries()
 
-    def next_step_MC(self):
-        """Compute the next step with the Monte Carlo method. """
-        #NEXT STEP
-        for i in range(self.height):
-            for j in range(self.width):
-                return self.grid[i][j]
-        #SOR AANPASSEN ZONDER SINK EN SOURCE?
-
-        # calculate total concentration of candidates
-        denominator = self.candidates_concentration()
-        print(denominator)
-        for coord in self.candidates:
-            x = coord[0]
-            y = coord[1]
-
-            concentration = self.grid[x][y]
-
-            # # check if it aggregates
-            # if #check whether its a neighbour
-            #     # add to objects
-            #     self.object_grid[x][y] = 1
-            #
-            #     # remove from candidates
-            #     self.candidates.remove(coord)
-            # elif #check out of bound: same as self.check_boundaries():??
-
-
     def check_boundaries(self):
         """ A method to check if the diffusion has reached the boundaries of the
             grid. """
