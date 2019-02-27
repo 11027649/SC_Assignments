@@ -84,6 +84,8 @@ class RandomWalker():
                     else:
                         next_step = self.grid[i][j-1]
 
+                        
+
             # # check if it aggregates
             # if #check whether its a neighbour
             #     # add to objects
