@@ -145,7 +145,7 @@ class DiffusionGrid():
 
             concentration = self.grid[y][x]
 
-            print(concentration, self.eta, denominator)
+            print(concentration, self.eta, denominator, x, y)
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:

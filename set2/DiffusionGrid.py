@@ -26,6 +26,22 @@ sns.set()
 
 from matplotlib import colors
 
+from numba import jitclass
+from numba import int32, int64, float64, boolean
+
+spec = [
+    ('height', int64),               # a simple scalar field
+    ('width', int64),
+    ('eta', int64),
+    ('step', int64),
+    ('converged', boolean),
+    ('candidates')
+    ('object')
+    ('grid')
+    ('object_grid')
+]
+
+@jitclass(spec)
 class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
@@ -39,7 +55,10 @@ class DiffusionGrid():
 
         # this is needed for the time independent methods
         self.converged = False
-        self.convergence = []
+
+        # this is needed for the aggregation
+        self.candidates = []
+        self.object = []
 
         self.initialize()
 
@@ -53,15 +72,31 @@ class DiffusionGrid():
 
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
+        # initalize object_grid with a seed
+        self.object_grid[self.height -1][int(self.width / 2)] = 1
+
+        # initialize candidate list
+        self.candidates.extend([(int(self.width / 2), self.height - 2),\
+                                (int(self.width / 2) - 1, self.height - 1),\
+                                (int(self.width / 2) + 1, self.height - 1)])
+
+
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
         self.w = w
+
+        # after omega is set, let it converge first
+        while not self.converged:
+            self.next_step_sor()
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
 
-        self.next_step_sor()
+        if not self.converged:
+            self.next_step_sor()
+        else:
+            self.check_aggregation()
 
         self.step += 1
 
@@ -112,3 +147,60 @@ class DiffusionGrid():
 
         if max_delta < 10**-5:
             self.converged = True
+            print("CONVERGED!")
+
+    def check_aggregation(self):
+        """ Check if the candidates around the object aggregate or not. """
+
+        # calculate total concentration of candidates
+        denominator = self.candidates_concentration()
+
+        new_candidates = []
+
+        for coord in self.candidates:
+            x = coord[0]
+            y = coord[1]
+
+            concentration = self.grid[y][x]
+
+            # check if it aggregates
+            if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:
+                print("AGGREGATIONNNNNNNNNN")
+                # add to object, make it a sink
+                self.object_grid[y][x] = 1
+                self.grid[y][x] = 0
+
+                # append these coordinates to object list
+                self.object.append((x,y))
+
+                # remove from candidates
+                self.candidates.remove(coord)
+
+                # add new candidates if not at boundaries and if not already in there
+                new_candidates.extend([(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)])
+
+        for new_coord in new_candidates:
+            if not new_coord in self.candidates\
+                    and not new_coord in self.object\
+                    and new_coord[0] <= self.width - 1\
+                    and new_coord[0] >= 0\
+                    and new_coord[1] <= self.height -1\
+                    and new_coord[1] >= 0:
+
+                self.candidates.append(new_coord)
+
+
+        self.converged = False
+
+    def candidates_concentration(self):
+        """ Calculates total concentration of all candidates together. """
+
+        concentration = 0
+
+        for coord in self.candidates:
+            plus = self.grid[coord[1]][coord[0]]
+            if self.grid[coord[1]][coord[0]] < 0:
+                plus = 0
+            concentration = concentration + plus**self.eta
+
+        return concentration

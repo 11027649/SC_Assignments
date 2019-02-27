@@ -13,8 +13,8 @@ def main():
     N = 100
 
     # create discrete colormap
-    cmap = colors.ListedColormap(['navy', 'white', 'red'])
-    bounds = [0,1,2]
+    cmap = colors.ListedColormap(['navy', 'green', 'red'])
+    bounds = [0,0.5,1.5,2]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
     global fig, im, mc
