@@ -13,13 +13,13 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    eta = 1.5
+    eta = 5
 
     # best omega from previous assignment
     omega = 1.914
 
     # create discrete colormap
-    cmap = colors.ListedColormap(['navy', 'white'])
+    cmap = colors.ListedColormap(['navy', 'pink'])
     bounds = [0,1,2]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 

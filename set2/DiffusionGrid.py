@@ -128,17 +128,21 @@ class DiffusionGrid():
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= concentration**self.eta/denominator:
-                # add to object            
+                # add to object
                 self.object_grid[y][x] = 1
                 # remove from candidates
                 self.candidates.remove(coord)
 
                 # add new candidates if not at boundaries and if not already in there
-                if not x == self.width - 1 and not y == self.height - 1:
-                    new_candidates = [(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)]
-                    for new_coord in new_candidates:
-                        if not new_coord in self.candidates:
-                            self.candidates.append(new_coord)
+                new_candidates = [(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)]
+                for new_coord in new_candidates:
+                    if not new_coord in self.candidates\
+                            and new_coord[0] <= self.width - 1\
+                            and new_coord[0] >= 0\
+                            and new_coord[1] <= self.height -1\
+                            and new_coord[1] >= 0:
+
+                        self.candidates.append(new_coord)
 
         # check if diffusion has reached boundaries
         self.check_boundaries()
