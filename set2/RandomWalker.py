@@ -24,11 +24,14 @@ class RandomWalker():
         the Monte Carlo simulation.
         Grid = 0, Object = 1, Random walker = 2. """
 
-    def __init__(self, gridsize):
+    def __init__(self, gridsize, p_stick):
         self.height = gridsize
         self.width = gridsize
 
         self.step = 0
+
+        # sticking probability
+        self.p_stick = p_stick
 
         self.initialize()
 

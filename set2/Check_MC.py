@@ -11,7 +11,8 @@ from matplotlib import colors
 
 def main():
     N = 100
-
+    p_stick = 1
+    
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'green', 'red'])
     bounds = [0,0.5,1.5,2]
@@ -19,7 +20,7 @@ def main():
 
     global fig, im, mc
 
-    mc = RandomWalker(N)
+    mc = RandomWalker(N, p_stick)
 
 
     # set up figure
