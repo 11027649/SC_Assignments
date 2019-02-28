@@ -21,7 +21,8 @@ import random
 
 class RandomWalker():
     """ This is a class that contains the random walker aka
-        the Monte Carlo simulation."""
+        the Monte Carlo simulation.
+        Grid = 0, Object = 1, Random walker = 2. """
 
     def __init__(self, gridsize):
         self.height = gridsize
@@ -38,18 +39,23 @@ class RandomWalker():
         # initalize object seed at bottom of grid
         self.grid[self.height - 1][int(self.width / 2)] = 1
 
+        # KLADD
+        for i in range(10,int(self.width /2)):
+            for j in range(10, int(self.height /2)):
+                self.grid[j][i] = 1
+
         # initialize first walker
         self.place_walker()
 
     def place_walker(self):
         """ This is a function that places a new random walker at the top of the
             grid. """
+            #TO DO check: # check if there's an object at this grid point -- bug?
 
         print(self.step, "placing a walker")
 
         self.walker_x = random.choice(range(self.width))
-        # self.walker_y = 0
-        self.walker_y = self.height -2
+        self.walker_y = 0
 
         # check if there's an object at this grid point
         if self.grid[self.walker_y][self.walker_x] == 1:
@@ -97,7 +103,9 @@ class RandomWalker():
                 # walker becomes part of the object
                 self.grid[self.walker_y][self.walker_x] == 1
 
-                # place a new random walker
+                # remove this walker
+                self.remove_walker()
+                # place a new walker on the top of the grid
                 self.place_walker()
 
                 # next step of the animation when random walker is aggregated
