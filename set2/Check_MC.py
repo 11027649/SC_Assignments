@@ -10,9 +10,9 @@ from RandomWalker import RandomWalker
 from matplotlib import colors
 
 def main():
-    N = 100
+    N = 40
     p_stick = 1
-    
+
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'green', 'red'])
     bounds = [0,0.5,1.5,2]
@@ -29,8 +29,9 @@ def main():
 
     im = plt.imshow(mc.grid, cmap = cmap, norm =norm)
 
+    print("Ik ga nu de animatie doen")
     # call the animator, blit = True means only redraw changed part
-    anim = animation.FuncAnimation(fig, animate, frames=1000, interval=1, blit=False, repeat=False)
+    anim = animation.FuncAnimation(fig, animate, frames=100, interval=1, blit=False, repeat=False)
 
     # show animation
     plt.xticks([])

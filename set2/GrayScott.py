@@ -85,21 +85,21 @@ class GrayScott():
             for j in range(self.width):
                 if j == 0:
                     next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + ((self.dt * self.D)/self.dx)**2 * (current_state[i + 1][j]\
                                         + current_state[i - 1][j]\
                                         + current_state[i][j + 1]\
                                         + current_state[i][self.width - 1]\
                                         - 4 * current_state[i][j])
                 elif j == self.width - 1:
                     next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + ((self.dt * self.D)/self.dx)**2 * (current_state[i + 1][j]\
                                         + current_state[i - 1][j]\
                                         + current_state[i][0]\
                                         + current_state[i][j - 1]\
                                         - 4 * current_state[i][j])
                 else:
                     next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+                                        + ((self.dt * self.D)/self.dx)**2 * (current_state[i + 1][j]\
                                         + current_state[i - 1][j]\
                                         + current_state[i][j + 1]\
                                         + current_state[i][j - 1]\

@@ -43,8 +43,8 @@ class RandomWalker():
         self.grid[self.height - 1][int(self.width / 2)] = 1
 
         # KLADD
-        for i in range(10,int(self.width /2)):
-            for j in range(10, int(self.height /2)):
+        for i in range(1,int(self.width) - 3):
+            for j in range(6, 20):
                 self.grid[j][i] = 1
 
         # initialize first walker
@@ -53,9 +53,6 @@ class RandomWalker():
     def place_walker(self):
         """ This is a function that places a new random walker at the top of the
             grid. """
-            #TO DO check: # check if there's an object at this grid point -- bug?
-
-        print(self.step, "placing a walker")
 
         self.walker_x = random.choice(range(self.width))
         self.walker_y = 0
@@ -63,9 +60,9 @@ class RandomWalker():
         # check if there's an object at this grid point
         if self.grid[self.walker_y][self.walker_x] == 1:
             self.place_walker()
-
-        # initialize random walker seed with concentration 2 on top of grid
-        self.grid[self.walker_y][self.walker_x] = 2
+        else:
+            # initialize random walker on top of grid
+            self.grid[self.walker_y][self.walker_x] = 2
 
 
     def remove_walker(self):
@@ -78,21 +75,22 @@ class RandomWalker():
         self.neighbours = []
 
         # check out of bound (down, up, left, right), and when not, append neighbour
-        #MAAR DE HOEKPUNTEN KLOPPEN ZO VOLGENS MIJ HIER OOK WEER NIET...
-        if not self.walker_y < 0:  #down
-            self.neighbours.append(((self.walker_y - 1),(self.walker_x)))
-        if not self.walker_y == self.height: #up
-            self.neighbours.append(((self.walker_y + 1),(self.walker_x)))
-        if not self.walker_x < 0: #left
-            self.neighbours.append(((self.walker_y),(self.walker_x - 1)))
-        if not self.walker_x == self.width: #right
-            self.neighbours.append(((self.walker_y),(self.walker_x + 1)))
+        if not self.walker_y == 0:  #down
+            self.neighbours.append((self.walker_x, self.walker_y + 1))
+
+        if not self.walker_y == self.height - 1: #up
+            self.neighbours.append((self.walker_x, self.walker_y - 1))
+
+        if not self.walker_x == 0: #left
+            self.neighbours.append((self.walker_x - 1, self.walker_y))
+
+        if not self.walker_x == self.width - 1: #right
+            self.neighbours.append((self.walker_x + 1, self.walker_y))
 
     def next_step(self):
         """ The next step of the animation. """
         #To Do: append statement to only create a next step when the
         # random walker has been added to the object. --
-        # HAS BEEN ADDED IN COMMENTS
 
         # calculate new coordinates
         self.next_coordinates()
@@ -101,19 +99,22 @@ class RandomWalker():
 
         # check if walker aggregates by checking the neighbours
         self.define_neighbours()
-        print('neighbours', self.neighbours)
+
         for neighbour in self.neighbours:
-            print('check', self.grid[neighbour[0]][neighbour[1]])
-            # errorrrrr list index out of range... 
-            if self.grid[neighbour[0]][neighbour[1]] == 1:
+
+            # errorrrrr list index out of range...
+            if self.grid[neighbour[1]][neighbour[0]] == 1:
+                print("adding something to the object!", self.step, self.walker_x, self.walker_y)
                 # walker becomes part of the object
-                self.grid[self.walker_y][self.walker_x] == 1
+                print(self.grid[self.walker_y][self.walker_x])
+                self.grid[self.walker_y - 1][self.walker_x] = 1
+                print(self.grid[self.walker_y][self.walker_x])
 
                 # remove this walker
                 self.remove_walker()
                 # place a new walker on the top of the grid
                 self.place_walker()
-
+                break
                 # next step of the animation when random walker is aggregated
                 # self.step += 1
 
@@ -122,11 +123,8 @@ class RandomWalker():
     def move(self):
         """Compute the next step with the Monte Carlo method. """
 
-        print(self.next_walker_x, self.next_walker_y)
-
         # out of bound at top/bottom
         if self.next_walker_y < 0 or self.next_walker_y == self.height:
-            print("removing: " , self.grid[self.walker_y][self.walker_x])
             # remove this walker
             self.remove_walker()
             # place a new walker on the top of the grid
