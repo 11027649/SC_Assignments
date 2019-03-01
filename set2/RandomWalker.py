@@ -80,13 +80,13 @@ class RandomWalker():
         # check out of bound (down, up, left, right), and when not, append neighbour
         #MAAR DE HOEKPUNTEN KLOPPEN ZO VOLGENS MIJ HIER OOK WEER NIET...
         if not self.walker_y < 0:  #down
-            self.neighbours.append(self.grid[self.walker_y - 1][self.walker_x])
-        elif not self.walker_y == self.height: #up
-            self.neighbours.append(self.grid[self.walker_y + 1][self.walker_x])
-        elif not self.walker_x < 0: #left
-            self.neighbours.append(self.grid[self.walker_y][self.walker_x - 1])
-        elif not self.walker_x == self.width: #right
-            self.neighbours.append(self.grid[self.walker_y][self.walker_x + 1])
+            self.neighbours.append(((self.walker_y - 1),(self.walker_x)))
+        if not self.walker_y == self.height: #up
+            self.neighbours.append(((self.walker_y + 1),(self.walker_x)))
+        if not self.walker_x < 0: #left
+            self.neighbours.append(((self.walker_y),(self.walker_x - 1)))
+        if not self.walker_x == self.width: #right
+            self.neighbours.append(((self.walker_y),(self.walker_x + 1)))
 
     def next_step(self):
         """ The next step of the animation. """
@@ -101,8 +101,11 @@ class RandomWalker():
 
         # check if walker aggregates by checking the neighbours
         self.define_neighbours()
+        print('neighbours', self.neighbours)
         for neighbour in self.neighbours:
-            if neighbour == 1:
+            print('check', self.grid[neighbour[0]][neighbour[1]])
+            # errorrrrr list index out of range... 
+            if self.grid[neighbour[0]][neighbour[1]] == 1:
                 # walker becomes part of the object
                 self.grid[self.walker_y][self.walker_x] == 1
 
