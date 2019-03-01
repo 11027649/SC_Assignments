@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from RandomWalker import RandomWalker
-
+import time
 from matplotlib import colors
 
 def main():
@@ -18,34 +18,25 @@ def main():
     bounds = [0,0.5,1.5,2]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
-    global fig, im, mc
-
     mc = RandomWalker(N, p_stick)
 
 
     # set up figure
     fig = plt.figure()
+
+    while not mc.highest_object == 0:
+        mc.next_step()
+
+    mc.remove_walker()
+
     fig.suptitle("MC, step: " + str(mc.step))
-
     im = plt.imshow(mc.grid, cmap = cmap, norm =norm)
-
-    print("Ik ga nu de animatie doen")
-    # call the animator, blit = True means only redraw changed part
-    anim = animation.FuncAnimation(fig, animate, frames=100, interval=1, blit=False, repeat=False)
 
     # show animation
     plt.xticks([])
     plt.yticks([])
-    plt.show()
 
-def animate(i):
-    """ Calculate next state and set that for the animation. """
-
-    mc.next_step()
-    fig.suptitle("Diffusion limited aggregation\n step: " + str(mc.step))
-    im.set_data(mc.grid)
-
-    return im,
+    plt.savefig("results/randomwalker" + str(time.time()) + ".png")
 
 
 if __name__ == '__main__':
