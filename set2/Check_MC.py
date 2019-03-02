@@ -10,7 +10,7 @@ import time
 from matplotlib import colors
 
 def main():
-    N = 40
+    N = 100
     p_stick = 1
 
     # create discrete colormap
@@ -29,14 +29,14 @@ def main():
 
     mc.remove_walker()
 
-    fig.suptitle("MC, step: " + str(mc.step))
+    fig.suptitle("MC, step: " + str(mc.step) + " p-stick: " + str(p_stick))
     im = plt.imshow(mc.grid, cmap = cmap, norm =norm)
 
     # show animation
     plt.xticks([])
     plt.yticks([])
 
-    plt.savefig("results/randomwalker" + str(time.time()) + ".png")
+    plt.savefig("results/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
 
 
 if __name__ == '__main__':

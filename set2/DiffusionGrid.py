@@ -55,6 +55,7 @@ class DiffusionGrid():
 
         # this is needed for the time independent methods
         self.converged = False
+        self.reached_boundaries = False
 
         # this is needed for the aggregation
         self.candidates = []
@@ -66,9 +67,13 @@ class DiffusionGrid():
         """" Initalize grid """
         self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
+        # initialize with concentrations from analytic solutions
+        y = self.analytic_solution()
+
         # initialize top with concentration 1
-        for i in range(0, self.width):
-            self.grid[0][i] = 1
+        for j in range(0, self.height):
+            for i in range(0, self.width):
+                self.grid[j][i] = y[j]
 
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
@@ -80,6 +85,25 @@ class DiffusionGrid():
                                 (int(self.width / 2) - 1, self.height - 1),\
                                 (int(self.width / 2) + 1, self.height - 1)])
 
+    def analytic_solution(self):
+        """ This function contains a function to calculate the analytic solution
+            for the diffusion equation. """
+
+        # TODO what is this M lol
+        M = 10
+        x = np.linspace(0.,1.,self.width)
+
+        # make a list with zeros
+        y = [0]*len(x)
+        t = 1
+        D = 1
+        for j,xj in enumerate(x):
+            for i in range(0,M):
+                # add each time
+                y[j] += math.erfc((1-xj+2*i)/(2*np.sqrt(D*t))) - math.erfc((1+xj+2*i)/(2*np.sqrt(D*t)))
+
+        y.reverse()
+        return y
 
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
@@ -165,13 +189,16 @@ class DiffusionGrid():
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:
-                print("AGGREGATIONNNNNNNNNN")
+                print("AGGREGATIONNNNNNNNNN", x,y)
                 # add to object, make it a sink
                 self.object_grid[y][x] = 1
                 self.grid[y][x] = 0
 
                 # append these coordinates to object list
                 self.object.append((x,y))
+
+                if x == 0 or x == self.width - 1 or y == 0:
+                    self.reached_boundaries = True
 
                 # remove from candidates
                 self.candidates.remove(coord)
@@ -188,7 +215,6 @@ class DiffusionGrid():
                     and new_coord[1] >= 0:
 
                 self.candidates.append(new_coord)
-
 
         self.converged = False
 
