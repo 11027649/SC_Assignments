@@ -36,7 +36,7 @@ def main():
     plt.xticks([])
     plt.yticks([])
     plt.imshow(dla.object_grid, cmap = cmap, norm =norm)
-    plt.savefig("results/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
+    plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
     # plt.show()
 
     fig = plt.figure()
@@ -44,7 +44,7 @@ def main():
     plt.imshow(dla.grid)
     plt.xticks([])
     plt.yticks([])
-    plt.savefig("results/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
+    plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
     # plt.show()
 
 

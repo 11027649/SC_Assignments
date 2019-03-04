@@ -36,7 +36,7 @@ def main():
     plt.xticks([])
     plt.yticks([])
 
-    plt.savefig("results/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
+    plt.savefig("results/randomwalker/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
 
 
 if __name__ == '__main__':

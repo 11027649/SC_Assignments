@@ -22,26 +22,29 @@ import random
 class GrayScott():
     """ This is a class that implements a reaction diffusion system. """
 
-    def __init__(self, gridsize, D, method):
+    def __init__(self, gridsize, D):
         self.height = gridsize
         self.width = gridsize
-        self.D = D
 
-        self.dx = 1/self.width
+        # initial parameters from the assignment
+        self.Du = 0.16
+        self.Dv = 0.08
+
+        self.dx = 1
+        self.dt = 1
+
+        self.f = 0.035
+        self.k = 0.06
+
         self.time = 0
 
         self.saved_states = {}
-        self.method = method
-
-        # this is needed for the time independent methods
-        self.converged = False
-        self.convergence = []
 
         self.initialize()
 
     def initialize(self):
         """" Initalize grid """
-        self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
+        self.grid = [[(0.5, 0) for col in range(self.width)] for row in range(self.height)]
 
         # initialize top with concentration 1
         for i in range(0, self.width):
