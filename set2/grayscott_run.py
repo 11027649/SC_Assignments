@@ -21,10 +21,16 @@ def main():
     fig = plt.figure()
     fig.suptitle("Fluid Dynamics, Gray-Scott Model\n step:" + str(gs.time))
 
-    im =  plt.imshow(gs.v_conc)
+    im =  plt.imshow(gs.u_conc)
 
     # call the animator, blit = True means only redraw changed part
-    anim = animation.FuncAnimation(fig, animate, frames=10000, interval=1, repeat=False)
+    anim = animation.FuncAnimation(fig, animate, frames=100, interval=1, repeat=False)
+
+    for row in gs.u_conc:
+        print(row)
+
+    print(gs.v_conc)
+
 
     # show animation
     plt.xticks([])
@@ -38,7 +44,7 @@ def animate(i):
 
     gs.next_step()
     fig.suptitle("Fluid Dynamics, Gray-Scott Model\n step:" + str(gs.time))
-    im.set_data(gs.v_conc)
+    im.set_data(gs.u_conc)
 
     return im,
 

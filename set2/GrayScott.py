@@ -43,8 +43,8 @@ class GrayScott():
         self.v_conc = np.zeros((self.width + 2, self.height + 2))
         self.u_conc = np.zeros((self.width + 2, self.height + 2))
 
-        for j in range(0, self.width + 2):
-            for i in range(0, self.height + 2):
+        for j in range(self.width + 2):
+            for i in range(self.height + 2):
                 self.u_conc[i,j] = 0.5
 
         print(self.u_conc)
@@ -75,30 +75,30 @@ class GrayScott():
         for i in range(1, self.height - 2):
             # iterate over columsn, first and last are periodic boundaries
             for j in range(1, self.width - 2):
-                self.u_next[i, j] = self.u_conc[i,j] + (self.dt * self.Du/self.dx**2)\
+                self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
                                 * (self.u_conc[i + 1, j] + self.u_conc[i - 1, j]\
                                 + self.u_conc[i, j + 1] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
-                                - self.u_conc[i, j]*self.v_conc[i, j]**2 + self.f*(1 - self.u_conc[i, j])
+                                - self.dt * self.u_conc[i, j] * (self.v_conc[i ,j]**2 + self.f)\
+                                + self.dt * self.f
 
-                self.v_next[i, j] = self.v_conc[i , j] + (self.dt * self.Dv/self.dt**2)\
+                self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
                                 * (self.v_conc[i + 1, j] + self.v_conc[i - 1, j]\
                                 + self.v_conc[i, j + 1] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
-                                - self.u_conc[i, j]*self.v_conc[i, j]**2 - (self.f + self.k)* self.v_conc[i, j]
+                                + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
 
-
-        # stuff with pbc
-        for i in range(self.width):
-            self.u_next[0, i] = self.u_next[self.width, i]
-            self.u_next[self.width + 1, i] = self.u_next[1, i]
-
-            self.u_next[i, 0] = self.u_next[i, self.height]
-            self.u_next[i, self.height + 1] = self.u_next[i, 1]
-
-            self.v_next[0, i] = self.v_next[self.width, i]
-            self.v_next[self.width + 1, i] = self.v_next[1, i]
-
-            self.v_next[i, 0] = self.v_next[i, self.height]
-            self.v_next[i, self.height + 1] = self.v_next[i, 1]
+        # # stuff with pbc
+        # for i in range(self.width):
+        #     self.u_next[0, i] = self.u_next[self.width, i]
+        #     self.u_next[self.width + 1, i] = self.u_next[1, i]
+        #
+        #     self.u_next[i, 0] = self.u_next[i, self.height]
+        #     self.u_next[i, self.height + 1] = self.u_next[i, 1]
+        #
+        #     self.v_next[0, i] = self.v_next[self.width, i]
+        #     self.v_next[self.width + 1, i] = self.v_next[1, i]
+        #
+        #     self.v_next[i, 0] = self.v_next[i, self.height]
+        #     self.v_next[i, self.height + 1] = self.v_next[i, 1]
 
         self.v_conc = np.copy(self.v_next)
         self.u_conc = np.copy(self.u_next)

@@ -13,7 +13,7 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    eta = 1
+    eta = 1.5
 
     # best omega from previous assignment
     omega = 1.95
