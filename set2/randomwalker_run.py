@@ -11,7 +11,7 @@ from matplotlib import colors
 
 def main():
     N = 100
-    p_stick = 0.7
+    p_stick = 0.9
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white', 'red'])
