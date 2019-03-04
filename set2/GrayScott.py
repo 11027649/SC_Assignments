@@ -50,8 +50,8 @@ class GrayScott():
         print(self.u_conc)
 
         # initialize a small center with v = 0.25
-        for j in range(22, 32):
-            for i in range(22,32):
+        for j in range(42, 57):
+            for i in range(42,57):
                 self.v_conc[i,j] = 0.25
 
         print(self.v_conc)

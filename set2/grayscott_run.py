@@ -15,7 +15,7 @@ def main():
     global gs, im, fig
 
     # initiate image and diffusion grid
-    gs = GrayScott(50)
+    gs = GrayScott(100)
 
     # set up figure
     fig = plt.figure()
@@ -24,13 +24,7 @@ def main():
     im =  plt.imshow(gs.u_conc)
 
     # call the animator, blit = True means only redraw changed part
-    anim = animation.FuncAnimation(fig, animate, frames=100, interval=1, repeat=False)
-
-    for row in gs.u_conc:
-        print(row)
-
-    print(gs.v_conc)
-
+    anim = animation.FuncAnimation(fig, animate, frames=1000, interval=1, repeat=False)
 
     # show animation
     plt.xticks([])
