@@ -192,10 +192,13 @@ class RandomWalker():
         else:
             self.next_walker_y = self.walker_y - 1
 
+
         # check if the random walker doesn't go to the no_neighbour of the object
         if self.not_sticked:
-            print(self.not_neighbour)
+            print(self.not_neighbour, self.next_walker_x, self.next_walker_y)
             # print(self.not_neighbour[1], self.next_walker_x)
 
-            if self.not_neighbour[1] == self.next_walker_x and self.not_neighbour[0] == self.next_walker_y:
+# HIER ZIT DE BUG!
+            if self.not_neighbour[0] == self.next_walker_x and self.not_neighbour[1] == self.next_walker_y:
+                print('coordinates', self.next_walker_x, self.next_walker_y)
                 self.next_coordinates()
