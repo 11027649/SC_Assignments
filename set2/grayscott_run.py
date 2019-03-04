@@ -10,12 +10,13 @@ from matplotlib import colors
 from GrayScott import GrayScott
 
 def main():
+    N = 100
 
     # these need to be global for the animation
     global gs, im, fig
 
     # initiate image and diffusion grid
-    gs = GrayScott(100)
+    gs = GrayScott(N)
 
     # set up figure
     fig = plt.figure()

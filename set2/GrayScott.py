@@ -32,7 +32,7 @@ class GrayScott():
         self.dt = 1
 
         self.f = 0.035
-        self.k = 0.06
+        self.k = 0.060
 
         self.time = 0
 
@@ -43,6 +43,7 @@ class GrayScott():
         self.v_conc = np.zeros((self.width, self.height))
         self.u_conc = np.zeros((self.width, self.height))
 
+        # initailize the whole system with u = 0.5
         for j in range(self.width):
             for i in range(self.height):
                 self.u_conc[i,j] = 0.5
@@ -88,13 +89,32 @@ class GrayScott():
         self.u_conc = np.copy(self.u_next)
 
     def update_conc(self, i, j, left, left_upper):
-        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+        """ Update the concentration of u, v, and p. """
+        # To do: append concentration p?
+
+        diff_u = (self.dt * self.Du/self.dx**2)\
             * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[left, j]\
-            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])\
-            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])
+        diff_v = (self.dt * self.Dv/self.dx**2)\
+            * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
+            + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])
+
+        self.u_next[i, j] = diff_u - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
             + self.dt * self.f
 
-        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
-                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
-                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])\
-                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
+        self.v_next[i, j] = diff_v + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j]\
+            - (self.f + self.k))
+
+
+        # self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+        #     * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[left, j]\
+        #     + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])\
+        #     - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+        #     + self.dt * self.f
+
+        #EERSTE REGEL dx ipv dt
+        # self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
+        #     * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
+        #     + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])\
+        #     + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j]\
+        #     - (self.f + self.k))
