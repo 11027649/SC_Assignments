@@ -47,10 +47,14 @@ class GrayScott():
             for i in range(0, self.height + 2):
                 self.u_conc[i,j] = 0.5
 
+        print(self.u_conc)
+
         # initialize a small center with v = 0.25
         for j in range(22, 32):
             for i in range(22,32):
                 self.v_conc[i,j] = 0.25
+
+        print(self.v_conc)
 
 
     def next_step(self):

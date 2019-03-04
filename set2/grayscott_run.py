@@ -21,7 +21,7 @@ def main():
     fig = plt.figure()
     fig.suptitle("Fluid Dynamics, Gray-Scott Model\n step:" + str(gs.time))
 
-    im =  plt.imshow(gs.u_conc)
+    im =  plt.imshow(gs.v_conc)
 
     # call the animator, blit = True means only redraw changed part
     anim = animation.FuncAnimation(fig, animate, frames=10000, interval=1, repeat=False)
@@ -38,7 +38,7 @@ def animate(i):
 
     gs.next_step()
     fig.suptitle("Fluid Dynamics, Gray-Scott Model\n step:" + str(gs.time))
-    im.set_data(gs.u_conc)
+    im.set_data(gs.v_conc)
 
     return im,
 
