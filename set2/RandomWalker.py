@@ -33,6 +33,10 @@ class RandomWalker():
         # sticking probability
         self.p_stick = p_stick
 
+        # walker didn't stick on the neighbour of the object
+        self.not_neighbour = ()
+        self.not_sticked = False
+
         self.initialize()
 
     def initialize(self):
@@ -96,9 +100,12 @@ class RandomWalker():
         """ The next step of the animation. """
         #To Do: append statement to only create a next step when the
         # random walker has been added to the object. --
-        added = False
 
-        while not added:
+        # whether a random walker is added to the object
+        # depends on the sticking probability
+        self.added = False
+
+        while not self.added:
             # calculate new coordinates
             self.next_coordinates()
             # move there (or not)
@@ -107,8 +114,11 @@ class RandomWalker():
             # check if walker aggregates by checking the neighbours
             self.define_neighbours()
 
+            # check neighbours of walker and stick probability
             for neighbour in self.neighbours:
-                if self.grid[neighbour[1]][neighbour[0]] == 1:
+                # neighbour is an object and probability holds to stick
+                if self.grid[neighbour[1]][neighbour[0]] == 1 and np.random.random() <= self.p_stick:
+                    print('PART OF OBJECT')
                     # walker becomes part of the object
                     self.grid[self.walker_y][self.walker_x] = 1
 
@@ -116,11 +126,21 @@ class RandomWalker():
                     if self.walker_y < self.highest_object:
                         self.highest_object = self.walker_y
 
-                    added = True
+                    self.added = True
+                    self.not_sticked = False
 
                     # place a new walker on the top of the grid
                     self.place_walker()
                     break
+
+                # neighbour is an object but probability doesn't hold to stick
+                elif self.grid[neighbour[1]][neighbour[0]] == 1:
+                    self.not_neighbour = neighbour
+                    self.not_sticked = True
+                    # print(self.not_neighbour)
+                    print('NOT PART OF OBJECT')
+                    self.next_step()
+
 
         self.step += 1
 
@@ -152,6 +172,8 @@ class RandomWalker():
 
     def next_coordinates(self):
         """ Calculate next coordinates for the walker. """
+        # TO do: check that the random walker doesnt go to the no neighbour
+        # and remove the no_neighbour after the walker has moved!
 
         # choose direction
         choose = ["left", "right", "up", "down"]
@@ -169,3 +191,11 @@ class RandomWalker():
             self.next_walker_y = self.walker_y + 1
         else:
             self.next_walker_y = self.walker_y - 1
+
+        # check if the random walker doesn't go to the no_neighbour of the object
+        if self.not_sticked:
+            print(self.not_neighbour)
+            # print(self.not_neighbour[1], self.next_walker_x)
+
+            if self.not_neighbour[1] == self.next_walker_x and self.not_neighbour[0] == self.next_walker_y:
+                self.next_coordinates()
