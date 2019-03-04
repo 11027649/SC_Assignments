@@ -12,17 +12,15 @@
 
 import numpy as np
 import math
-import pandas
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import copy
 import time
-import random
+
 
 class GrayScott():
     """ This is a class that implements a reaction diffusion system. """
 
-    def __init__(self, gridsize, D):
+    def __init__(self, gridsize):
         self.height = gridsize
         self.width = gridsize
 
@@ -38,38 +36,22 @@ class GrayScott():
 
         self.time = 0
 
-        self.saved_states = {}
-
         self.initialize()
 
     def initialize(self):
         """" Initalize grid """
-        self.grid = [[(0.5, 0) for col in range(self.width)] for row in range(self.height)]
+        self.grid = np.array([numpy.array([0.5, 0]) for col in range(self.width)]))
+        print(self.grid)
+        self.grid = [[[0.5, 0] for col in range(self.width)] for row in range(self.height)]
 
-        # initialize top with concentration 1
-        for i in range(0, self.width):
-            self.grid[0][i] = 1
-
-        self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
-
-    def set_time(self, dt, timesteps):
-        """ Set the time settings for Time Dependent Diffusion. """
-
-        self.dt = dt
-        self.timesteps = timesteps
-
-        # save grid at right times for plots later (right times for timesteps of
-        # 0.00001)
-        # the other methods are time independent so we don't want to save these timesteps
-        self.save_times = [0, 100, 1000, 10000, 100000]
+        # initialize a small center with v = 0.25
+        for j in range(20, 30):
+            for i in range(20,30):
+                self.grid[i][j][1] = 0.25
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
-
-        # save info for plots
-        if self.time in self.save_times:
-            self.saved_states[self.time/100000] =  copy.deepcopy(self)
 
         self.next_step_time_GS()
         self.time += 1
@@ -80,31 +62,31 @@ class GrayScott():
 
         current_state = self.grid
         next_state = copy.copy(self.grid)
-
-        # iterate over grid, first row is always concentration 1, last row always 0
-        for i in range(1, self.height - 1):
-            # iterate over columsn, first and last are periodic boundaries
-            for j in range(self.width):
-                if j == 0:
-                    next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
-                                        + current_state[i - 1][j]\
-                                        + current_state[i][j + 1]\
-                                        + current_state[i][self.width - 1]\
-                                        - 4 * current_state[i][j])
-                elif j == self.width - 1:
-                    next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx)**2 * (current_state[i + 1][j]\
-                                        + current_state[i - 1][j]\
-                                        + current_state[i][0]\
-                                        + current_state[i][j - 1]\
-                                        - 4 * current_state[i][j])
-                else:
-                    next_state[i][j] = current_state[i][j]\
-                                        + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
-                                        + current_state[i - 1][j]\
-                                        + current_state[i][j + 1]\
-                                        + current_state[i][j - 1]\
-                                        - 4 * current_state[i][j])
-
-        self.grid = copy.copy(next_state)
+        #
+        # # iterate over grid, first row is always concentration 1, last row always 0
+        # for i in range(1, self.height - 1):
+        #     # iterate over columsn, first and last are periodic boundaries
+        #     for j in range(self.width):
+        #         if j == 0:
+        #             next_state[i][j] = current_state[i][j]\
+        #                                 + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+        #                                 + current_state[i - 1][j]\
+        #                                 + current_state[i][j + 1]\
+        #                                 + current_state[i][self.width - 1]\
+        #                                 - 4 * current_state[i][j])
+        #         elif j == self.width - 1:
+        #             next_state[i][j] = current_state[i][j]\
+        #                                 + (self.dt * self.D)/self.dx)**2 * (current_state[i + 1][j]\
+        #                                 + current_state[i - 1][j]\
+        #                                 + current_state[i][0]\
+        #                                 + current_state[i][j - 1]\
+        #                                 - 4 * current_state[i][j])
+        #         else:
+        #             next_state[i][j] = current_state[i][j]\
+        #                                 + (self.dt * self.D)/self.dx**2 * (current_state[i + 1][j]\
+        #                                 + current_state[i - 1][j]\
+        #                                 + current_state[i][j + 1]\
+        #                                 + current_state[i][j - 1]\
+        #                                 - 4 * current_state[i][j])
+        #
+        # self.grid = copy.copy(next_state)

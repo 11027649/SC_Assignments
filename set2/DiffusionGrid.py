@@ -26,23 +26,6 @@ sns.set()
 
 from matplotlib import colors
 
-from numba import jitclass
-from numba import int32, int64, float64, boolean
-
-# spec = [
-#     ('height', int64),               # a simple scalar field
-#     ('width', int64),
-#     ('eta', int64),
-#     ('step', int64),
-#     ('converged', boolean),
-#     ('reached_boundaries', boolean),
-#     ('candidates', float64[:]),
-#     ('object', float64[:]),
-#     ('grid', float64[:,:]),
-#     ('object_grid', float64[:,:])
-# ]
-#
-# @jitclass(spec)
 class DiffusionGrid():
     """ This is a class that contains the diffusion coefficient and dimensions for
         the diffusion grid. It also contains the diffusion grid itself."""
