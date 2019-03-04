@@ -26,12 +26,16 @@ def main():
 
     t = time.time()
 
+    cmap = colors.ListedColormap(['navy', 'white', 'red'])
+    bounds = [0,0.5,1.5,2]
+    norm = colors.BoundaryNorm(bounds, cmap.N)
+
     # set up figure
     fig = plt.figure()
     fig.suptitle("DLA, step: " + str(dla.step) + "eta: " + str(eta))
     plt.xticks([])
     plt.yticks([])
-    plt.imshow(dla.object_grid)
+    plt.imshow(dla.object_grid, cmap = cmap, norm =norm)
     plt.savefig("results/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
     # plt.show()
 

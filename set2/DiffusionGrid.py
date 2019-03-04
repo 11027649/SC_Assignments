@@ -26,19 +26,20 @@ sns.set()
 
 from matplotlib import colors
 
-# from numba import jitclass
-# from numba import int32, int64, float64, boolean
-#
+from numba import jitclass
+from numba import int32, int64, float64, boolean
+
 # spec = [
 #     ('height', int64),               # a simple scalar field
 #     ('width', int64),
 #     ('eta', int64),
 #     ('step', int64),
 #     ('converged', boolean),
-#     ('candidates')
-#     ('object')
-#     ('grid')
-#     ('object_grid')
+#     ('reached_boundaries', boolean),
+#     ('candidates', float64[:]),
+#     ('object', float64[:]),
+#     ('grid', float64[:,:]),
+#     ('object_grid', float64[:,:])
 # ]
 #
 # @jitclass(spec)
@@ -81,9 +82,9 @@ class DiffusionGrid():
         self.object_grid[self.height -1][int(self.width / 2)] = 1
 
         # initialize candidate list
-        self.candidates.extend([(int(self.width / 2), self.height - 2),\
-                                (int(self.width / 2) - 1, self.height - 1),\
-                                (int(self.width / 2) + 1, self.height - 1)])
+        self.candidates.append((int(self.width / 2), self.height - 2))
+        self.candidates.append((int(self.width / 2) - 1, self.height - 1))
+        self.candidates.append((int(self.width / 2) + 1, self.height - 1))
 
     def analytic_solution(self):
         """ This function contains a function to calculate the analytic solution

@@ -14,7 +14,7 @@ def main():
     p_stick = 1
 
     # create discrete colormap
-    cmap = colors.ListedColormap(['navy', 'green', 'red'])
+    cmap = colors.ListedColormap(['navy', 'white', 'red'])
     bounds = [0,0.5,1.5,2]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 

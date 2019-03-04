@@ -20,8 +20,7 @@ import time
 import random
 
 class GrayScott():
-    """ This is a class that implements the Reaction-diffusion,
-    based on the time dependent diffusion equation. """
+    """ This is a class that implements a reaction diffusion system. """
 
     def __init__(self, gridsize, D, method):
         self.height = gridsize
