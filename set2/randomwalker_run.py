@@ -20,21 +20,24 @@ def main():
 
     mc = RandomWalker(N, p_stick)
 
-
     # set up figure
-    fig = plt.figure()
+    fig, ax = plt.subplots()
 
-    while not mc.highest_object == 0:
+    # hide gridlines
+    ax.grid(False)
+    ax.set_xticks([0,0.2, 0.4, 0.6, 0.8, 1])
+    ax.set_yticks([0,0.2, 0.4, 0.6, 0.8, 1])
+
+    while not mc.highest_object == N - 1:
+        print(mc.highest_object)
         mc.next_step()
 
     mc.remove_walker()
+    plt.ylabel("y-coordinate")
+    plt.xlabel("x-coordinate")
 
-    fig.suptitle("MC, step: " + str(mc.step) + " p-stick: " + str(p_stick))
-    im = plt.imshow(mc.grid, cmap = cmap, norm =norm)
-
-    # show animation
-    plt.xticks([])
-    plt.yticks([])
+    fig.suptitle("MC, step: " + str(mc.step) + " p-stick: " + str(p_stick), fontsize='large')
+    im = plt.imshow(mc.grid, cmap = cmap, norm =norm, origin='lower')
 
     plt.savefig("results/randomwalker/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
 
