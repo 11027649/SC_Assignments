@@ -40,18 +40,18 @@ class GrayScott():
 
     def initialize(self):
         """" Initalize grid """
-        self.v_conc = np.zeros((self.width + 2, self.height + 2))
-        self.u_conc = np.zeros((self.width + 2, self.height + 2))
+        self.v_conc = np.zeros((self.width, self.height))
+        self.u_conc = np.zeros((self.width, self.height))
 
-        for j in range(self.width + 2):
-            for i in range(self.height + 2):
+        for j in range(self.width):
+            for i in range(self.height):
                 self.u_conc[i,j] = 0.5
 
         print(self.u_conc)
 
         # initialize a small center with v = 0.25
-        for j in range(42, 57):
-            for i in range(42,57):
+        for j in range(40, 55):
+            for i in range(40,55):
                 self.v_conc[i,j] = 0.25
 
         print(self.v_conc)
@@ -68,37 +68,49 @@ class GrayScott():
         """ Compute concentration in each grid point, according to the time dependent
             discretized partial differential equation. """
 
-        self.v_next = np.zeros((self.width + 2, self.height + 2))
-        self.u_next = np.zeros((self.width + 2, self.height + 2))
+        self.v_next = np.zeros((self.width, self.height))
+        self.u_next = np.zeros((self.width, self.height))
 
         # iterate over grid, first row is always concentration 1, last row always 0
-        for i in range(1, self.height - 2):
+        for i in range(self.height):
             # iterate over columsn, first and last are periodic boundaries
-            for j in range(1, self.width - 2):
-                self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
-                                * (self.u_conc[i + 1, j] + self.u_conc[i - 1, j]\
-                                + self.u_conc[i, j + 1] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
-                                - self.dt * self.u_conc[i, j] * (self.v_conc[i ,j]**2 + self.f)\
-                                + self.dt * self.f
+            for j in range(self.width):
+                try:
+                    self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+                        * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[i - 1, j]\
+                        + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
+                        - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+                        + self.dt * self.f
 
-                self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
-                                * (self.v_conc[i + 1, j] + self.v_conc[i - 1, j]\
-                                + self.v_conc[i, j + 1] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
-                                + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
+                    self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
+                                    * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[i - 1, j]\
+                                    + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
+                                    + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
 
-        # # stuff with pbc
-        # for i in range(self.width):
-        #     self.u_next[0, i] = self.u_next[self.width, i]
-        #     self.u_next[self.width + 1, i] = self.u_next[1, i]
-        #
-        #     self.u_next[i, 0] = self.u_next[i, self.height]
-        #     self.u_next[i, self.height + 1] = self.u_next[i, 1]
-        #
-        #     self.v_next[0, i] = self.v_next[self.width, i]
-        #     self.v_next[self.width + 1, i] = self.v_next[1, i]
-        #
-        #     self.v_next[i, 0] = self.v_next[i, self.height]
-        #     self.v_next[i, self.height + 1] = self.v_next[i, 1]
+                except IndexError:
+                    try:
+                        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+                            * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[self.width - 1, j]\
+                            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
+                            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+                            + self.dt * self.f
+
+                        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
+                                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[self.width - 1, j]\
+                                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
+                                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
+
+                    except IndexError:
+                        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+                            * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[self.width - 1, j]\
+                            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, self.height - 1] - 4 * self.u_conc[i, j])\
+                            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+                            + self.dt * self.f
+
+                        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
+                                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[self.width - 1, j]\
+                                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, self.height - 1] - 4 * self.v_conc[i, j])\
+                                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
 
         self.v_conc = np.copy(self.v_next)
         self.u_conc = np.copy(self.u_next)
