@@ -76,41 +76,25 @@ class GrayScott():
             # iterate over columsn, first and last are periodic boundaries
             for j in range(self.width):
                 try:
-                    self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
-                        * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[i - 1, j]\
-                        + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
-                        - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
-                        + self.dt * self.f
-
-                    self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
-                                    * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[i - 1, j]\
-                                    + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
-                                    + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
-
+                    self.update_conc(i, j, i - 1, j - 1)
                 except IndexError:
                     try:
-                        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
-                            * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[self.width - 1, j]\
-                            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, j - 1] - 4 * self.u_conc[i, j])\
-                            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
-                            + self.dt * self.f
-
-                        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
-                                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[self.width - 1, j]\
-                                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, j - 1] - 4 * self.v_conc[i, j])\
-                                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
+                        self.update_conc(i, j, self.width - 1, j - 1)
 
                     except IndexError:
-                        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
-                            * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[self.width - 1, j]\
-                            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, self.height - 1] - 4 * self.u_conc[i, j])\
-                            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
-                            + self.dt * self.f
-
-                        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
-                                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[self.width - 1, j]\
-                                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, self.height - 1] - 4 * self.v_conc[i, j])\
-                                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
+                        self.update_conc(i, j, self.width - 1, self.height - 1)
 
         self.v_conc = np.copy(self.v_next)
         self.u_conc = np.copy(self.u_next)
+
+    def update_conc(self, i, j, left, left_upper):
+        self.u_next[i, j] = (self.dt * self.Du/self.dx**2)\
+            * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[left, j]\
+            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])\
+            - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+            + self.dt * self.f
+
+        self.v_next[i, j] = (self.dt * self.Dv/self.dt**2)\
+                        * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
+                        + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])\
+                        + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j] - (self.f + self.k))
