@@ -15,56 +15,56 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    eta = 1.5
+    etas = [0.5, 1.0, 1.5]
 
     # best omega from previous assignment
     omega = 1.95
+    for eta in etas:
+        dla = DiffusionGrid(N, eta)
+        dla.set_omega(omega)
 
-    dla = DiffusionGrid(N, eta)
-    dla.set_omega(omega)
+        while not dla.reached_boundaries:
+            dla.next_step()
 
-    while not dla.reached_boundaries:
-        dla.next_step()
+        t = time.time()
 
-    t = time.time()
+        cmap = colors.ListedColormap(['navy', 'white', 'red'])
+        bounds = [0,0.5,1.5,2]
+        norm = colors.BoundaryNorm(bounds, cmap.N)
 
-    cmap = colors.ListedColormap(['navy', 'white', 'red'])
-    bounds = [0,0.5,1.5,2]
-    norm = colors.BoundaryNorm(bounds, cmap.N)
+        # set up figure
+        fig, ax = plt.subplots()
+        fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " + str(eta), fontsize='large')
+        plt.imshow(dla.object_grid, cmap = cmap, norm =norm, origin='lower')
 
-    # set up figure
-    fig, ax = plt.subplots()
-    fig.suptitle("Diffusion limited aggregation, step: " + str(dla.step) + "\neta: " + str(eta))
-    plt.imshow(dla.object_grid, cmap = cmap, norm =norm, origin='lower')
+        ax.grid(False)
+        ax.set_xticks([0,20,40,60,80,100])
+        ax.set_yticks([0,20,40,60,80,100])
+        ax.set_xlabel("x-coordinate")
+        ax.set_ylabel("y-coordinate")
 
-    ax.grid(False)
-    ax.set_xticks([0,20,40,60,80,100])
-    ax.set_yticks([0,20,40,60,80,100])
-    ax.set_xlabel("x-coordinate")
-    ax.set_ylabel("y-coordinate")
+        yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+        pylab.gca().yaxis.set_major_formatter(yfmt)
+        pylab.gca().xaxis.set_major_formatter(yfmt)
 
-    yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
-    pylab.gca().yaxis.set_major_formatter(yfmt)
-    pylab.gca().xaxis.set_major_formatter(yfmt)
+        plt.savefig("results/diffusion/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
+        # plt.show()
 
-    plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
-    # plt.show()
+        fig, ax = plt.subplots()
+        fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " +str(eta), fontsize='large')
+        plt.imshow(dla.grid, origin='lower')
+        plt.colorbar()
+        ax.grid(False)
+        ax.set_xticks([0,20,40,60,80,100])
+        ax.set_yticks([0,20,40,60,80,100])
+        ax.set_xlabel("x-coordinate")
+        ax.set_ylabel("y-coordinate")
 
-    fig, ax = plt.subplots()
-    fig.suptitle("Diffusion limited aggregation, step: " + str(dla.step) + "\neta: " +str(eta))
-    plt.imshow(dla.grid, origin='lower')
-    plt.colorbar()
-    ax.grid(False)
-    ax.set_xticks([0,20,40,60,80,100])
-    ax.set_yticks([0,20,40,60,80,100])
-    ax.set_xlabel("x-coordinate")
-    ax.set_ylabel("y-coordinate")
-
-    yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
-    pylab.gca().yaxis.set_major_formatter(yfmt)
-    pylab.gca().xaxis.set_major_formatter(yfmt)
-    plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
-    # plt.show()
+        yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+        pylab.gca().yaxis.set_major_formatter(yfmt)
+        pylab.gca().xaxis.set_major_formatter(yfmt)
+        plt.savefig("results/diffusion/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
+        # plt.show()
 
 
 def numfmt(x, pos): # your custom formatter function: divide by 100.0
