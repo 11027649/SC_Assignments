@@ -46,7 +46,8 @@ class DiffusionGrid():
 
     def initialize(self):
         """" Initalize grid """
-        self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
+        self.grid = np.zeros((self.width, self.height))
+        # self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
         # initialize with concentrations from analytic solutions
         y = self.analytic_solution()
@@ -59,12 +60,12 @@ class DiffusionGrid():
         self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
 
         # initalize object_grid with a seed
-        self.object_grid[self.height -1][int(self.width / 2)] = 1
+        self.object_grid[0][int(self.width / 2)] = 1
 
         # initialize candidate list
-        self.candidates.append((int(self.width / 2), self.height - 2))
-        self.candidates.append((int(self.width / 2) - 1, self.height - 1))
-        self.candidates.append((int(self.width / 2) + 1, self.height - 1))
+        self.candidates.append((int(self.width / 2), 1))
+        self.candidates.append((int(self.width / 2) - 1, 0))
+        self.candidates.append((int(self.width / 2) + 1, 0))
 
     def analytic_solution(self):
         """ This function contains a function to calculate the analytic solution
@@ -83,16 +84,11 @@ class DiffusionGrid():
                 # add each time
                 y[j] += math.erfc((1-xj+2*i)/(2*np.sqrt(D*t))) - math.erfc((1+xj+2*i)/(2*np.sqrt(D*t)))
 
-        y.reverse()
         return y
 
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
         self.w = w
-
-        # after omega is set, let it converge first
-        while not self.converged:
-            self.next_step_sor()
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
@@ -130,18 +126,11 @@ class DiffusionGrid():
                                             + self.grid[i][j + 1]\
                                             + self.grid[i][self.width - 1])\
                                             + (1 - self.w) * self.grid[i][j]
-                    elif j == self.width - 1:
-                        self.grid[i][j] = self.w/4 *\
-                                            (self.grid[i + 1][j]\
-                                            + self.grid[i - 1][j]\
-                                            + self.grid[i][0]\
-                                            + self.grid[i][j - 1])\
-                                            + (1 - self.w) * self.grid[i][j]
                     else:
                         self.grid[i][j] = self.w/4 *\
                                             (self.grid[i + 1][j]\
                                             + self.grid[i - 1][j]\
-                                            + self.grid[i][j + 1]\
+                                            + self.grid[i][(j + 1) % self.width]\
                                             + self.grid[i][j - 1])\
                                             + (1 - self.w) * self.grid[i][j]
 
@@ -150,9 +139,9 @@ class DiffusionGrid():
                 if delta > max_delta:
                     max_delta = delta
 
-        if max_delta < 10**-5:
+        if max_delta < 10**-2:
             self.converged = True
-            print("CONVERGED!")
+            print(self.step, "CONVERGED!")
 
     def check_aggregation(self):
         """ Check if the candidates around the object aggregate or not. """
@@ -170,7 +159,7 @@ class DiffusionGrid():
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:
-                print("AGGREGATIONNNNNNNNNN", x,y)
+                print(self.step, "AGGREGATIONNNNNNNNNN", x,y)
                 # add to object, make it a sink
                 self.object_grid[y][x] = 1
                 self.grid[y][x] = 0
@@ -178,7 +167,7 @@ class DiffusionGrid():
                 # append these coordinates to object list
                 self.object.append((x,y))
 
-                if x == 0 or x == self.width - 1 or y == 0:
+                if x == 0 or x == self.width - 1 or y == self.height - 1:
                     self.reached_boundaries = True
 
                 # remove from candidates

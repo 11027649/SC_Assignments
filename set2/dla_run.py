@@ -15,11 +15,14 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    etas = [1]
+    etas = [0.0, 0.5, 1.0, 1.5]
 
     # best omega from previous assignment
     omega = 1.95
+
     for eta in etas:
+        print("eta:", eta)
+
         dla = DiffusionGrid(N, eta)
         dla.set_omega(omega)
 
@@ -28,27 +31,9 @@ def main():
 
         t = time.time()
 
-        cmap = colors.ListedColormap(['navy', 'white', 'red'])
+        cmap = colors.ListedColormap(['navy', 'white'])
         bounds = [0,0.5,1.5,2]
         norm = colors.BoundaryNorm(bounds, cmap.N)
-
-        # set up figure
-        fig, ax = plt.subplots()
-        fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " + str(eta), fontsize='large')
-        plt.imshow(dla.object_grid, cmap = cmap, norm =norm, origin='lower')
-
-        ax.grid(False)
-        ax.set_xticks([0,20,40,60,80,100])
-        ax.set_yticks([0,20,40,60,80,100])
-        ax.set_xlabel("x-coordinate")
-        ax.set_ylabel("y-coordinate")
-
-        yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
-        pylab.gca().yaxis.set_major_formatter(yfmt)
-        pylab.gca().xaxis.set_major_formatter(yfmt)
-
-        plt.savefig("results/diffusion/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
-        # plt.show()
 
         fig, ax = plt.subplots()
         fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " +str(eta), fontsize='large')
@@ -59,13 +44,21 @@ def main():
         ax.set_yticks([0,20,40,60,80,100])
         ax.set_xlabel("x-coordinate")
         ax.set_ylabel("y-coordinate")
+        ax.set_xlim(0,100)
+        ax.set_ylim(0,100)
+
+        for y, row in enumerate(dla.object_grid):
+            for x, object in enumerate(row):
+                if object == 1:
+                    plt.scatter(x, y, s=5, color='white', marker="s")
 
         yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
         pylab.gca().yaxis.set_major_formatter(yfmt)
         pylab.gca().xaxis.set_major_formatter(yfmt)
-        plt.savefig("results/diffusion/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
+        plt.savefig("results/diffusion/diff_eta_" + str(eta) + "_" + str(t) + ".png", dpi=150)
         # plt.show()
 
+        np.savetxt("results/diffusion/diff_eta_" + str(eta) + "_" + str(t) + ".txt", dla.object_grid)
 
 def numfmt(x, pos): # your custom formatter function: divide by 100.0
     s = '{}'.format(x / 100.0)

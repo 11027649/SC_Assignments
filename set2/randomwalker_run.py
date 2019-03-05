@@ -14,7 +14,7 @@ import pylab
 
 def main():
     N = 100
-    p_stick = [0.2, 0.4, 0.6, 0.8]
+    p_stick = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white', 'red'])
@@ -22,6 +22,7 @@ def main():
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
     for p in p_stick:
+        print("RandomWalker with sticking probability: ", p)
         mc = RandomWalker(N, p)
 
         # set up figure
@@ -39,7 +40,6 @@ def main():
         pylab.gca().xaxis.set_major_formatter(yfmt)
 
         while not mc.highest_object == N - 1:
-            print(mc.highest_object)
             mc.next_step()
 
         mc.remove_walker()
