@@ -49,7 +49,8 @@ class DiffusionGrid():
 
     def initialize(self):
         """" Initalize grid """
-        self.grid = [[0 for col in range(self.width)] for row in range(self.height)]
+
+        self.grid = np.zeros((self.width, self.height))
 
         # initialize with concentrations from analytic solutions
         y = self.analytic_solution()
@@ -57,17 +58,17 @@ class DiffusionGrid():
         # initialize top with concentration 1
         for j in range(0, self.height):
             for i in range(0, self.width):
-                self.grid[j][i] = y[j]
+                self.grid[j, i] = y[j]
 
-        self.object_grid = [[0 for col in range(self.width)] for row in range(self.height)]
+        self.object_grid = np.zeros((self.width, self.height))
 
         # initalize object_grid with a seed
-        self.object_grid[self.height -1][int(self.width / 2)] = 1
+        self.object_grid[0, int(self.width / 2)] = 1
 
         # initialize candidate list
-        self.candidates.append((int(self.width / 2), self.height - 2))
-        self.candidates.append((int(self.width / 2) - 1, self.height - 1))
-        self.candidates.append((int(self.width / 2) + 1, self.height - 1))
+        self.candidates.append((int(self.width / 2), 1))
+        self.candidates.append((int(self.width / 2) - 1, 0))
+        self.candidates.append((int(self.width / 2) + 1, 0))
 
     def analytic_solution(self):
         """ This function contains a function to calculate the analytic solution
@@ -86,20 +87,17 @@ class DiffusionGrid():
                 # add each time
                 y[j] += math.erfc((1-xj+2*i)/(2*np.sqrt(D*t))) - math.erfc((1+xj+2*i)/(2*np.sqrt(D*t)))
 
-        y.reverse()
         return y
 
     def set_omega(self, w):
         """ Set the weight of omega for the SOR diffusion method. """
         self.w = w
 
-        # after omega is set, let it converge first
-        while not self.converged:
-            self.next_step_sor()
-
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
+
+        print(self.converged)
 
         if not self.converged:
             self.next_step_sor()
@@ -119,41 +117,34 @@ class DiffusionGrid():
         max_delta = 0
 
         # iterate over grid, first row is always concentration 1, last row always 0
-        for i in range(1, self.height - 1):
+        for j in range(self.width):
             # iterate over columns, first and last are periodic boundaries
-            for j in range(self.width):
-                previous = self.grid[i][j]
+            for i in range(1, self.height - 1):
+                previous = self.grid[i, j]
 
                 # check if there's an object at this grid point
-                if not self.object_grid[i][j] == 1:
+                if not self.object_grid[i, j] == 1:
                     if j == 0:
-                        self.grid[i][j] = self.w/4 *\
-                                            (self.grid[i + 1][j]\
-                                            + self.grid[i - 1][j]\
-                                            + self.grid[i][j + 1]\
-                                            + self.grid[i][self.width - 1])\
-                                            + (1 - self.w) * self.grid[i][j]
-                    elif j == self.width - 1:
-                        self.grid[i][j] = self.w/4 *\
-                                            (self.grid[i + 1][j]\
-                                            + self.grid[i - 1][j]\
-                                            + self.grid[i][0]\
-                                            + self.grid[i][j - 1])\
-                                            + (1 - self.w) * self.grid[i][j]
+                        self.grid[i, j] = self.w/4 *\
+                                            (self.grid[i + 1, j]\
+                                            + self.grid[i - 1, j]\
+                                            + self.grid[i, j + 1]\
+                                            + self.grid[i, self.width - 1])\
+                                            + (1 - self.w) * self.grid[i, j]
                     else:
-                        self.grid[i][j] = self.w/4 *\
-                                            (self.grid[i + 1][j]\
-                                            + self.grid[i - 1][j]\
-                                            + self.grid[i][j + 1]\
-                                            + self.grid[i][j - 1])\
-                                            + (1 - self.w) * self.grid[i][j]
+                        self.grid[i, j] = self.w/4 *\
+                                            (self.grid[i + 1, j]\
+                                            + self.grid[i - 1, j]\
+                                            + self.grid[i, (j + 1)%self.width]\
+                                            + self.grid[i, j - 1])\
+                                            + (1 - self.w) * self.grid[i, j]
 
-                delta = abs(self.grid[i][j] - previous)
+                delta = abs(self.grid[i, j] - previous)
 
                 if delta > max_delta:
                     max_delta = delta
 
-        if max_delta < 10**-5:
+        if max_delta < 10**-3:
             self.converged = True
             print("CONVERGED!")
 
@@ -169,19 +160,18 @@ class DiffusionGrid():
             x = coord[0]
             y = coord[1]
 
-            concentration = self.grid[y][x]
+            concentration = self.grid[x, y]
 
             # check if it aggregates
             if not denominator == 0 and np.random.random() <= (concentration**self.eta)/denominator:
-                print("AGGREGATIONNNNNNNNNN", x,y)
                 # add to object, make it a sink
-                self.object_grid[y][x] = 1
-                self.grid[y][x] = 0
+                self.object_grid[y, x] = 1
+                self.grid[y, x] = 0
 
                 # append these coordinates to object list
                 self.object.append((x,y))
 
-                if x == 0 or x == self.width - 1 or y == 0:
+                if x == 0 or x == self.width - 1 or y == self.height - 1:
                     self.reached_boundaries = True
 
                 # remove from candidates
@@ -189,6 +179,7 @@ class DiffusionGrid():
 
                 # add new candidates if not at boundaries and if not already in there
                 new_candidates.extend([(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)])
+                print("AGGREGATIONNNNNNNNNN", x,y, self.reached_boundaries)
 
         for new_coord in new_candidates:
             if not new_coord in self.candidates\
@@ -208,8 +199,8 @@ class DiffusionGrid():
         concentration = 0
 
         for coord in self.candidates:
-            plus = self.grid[coord[1]][coord[0]]
-            if self.grid[coord[1]][coord[0]] < 0:
+            plus = self.grid[coord[1], coord[0]]
+            if self.grid[coord[1], coord[0]] < 0:
                 plus = 0
             concentration = concentration + plus**self.eta
 

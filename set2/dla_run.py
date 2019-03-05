@@ -8,6 +8,8 @@ import matplotlib.animation as animation
 from DiffusionGrid import DiffusionGrid
 import time
 from matplotlib import colors
+import matplotlib.ticker as tkr     # has classes for tick-locating and -formatting
+import pylab
 
 def main():
     N = 100
@@ -31,22 +33,43 @@ def main():
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
     # set up figure
-    fig = plt.figure()
-    fig.suptitle("DLA, step: " + str(dla.step) + "eta: " + str(eta))
-    plt.xticks([])
-    plt.yticks([])
-    plt.imshow(dla.object_grid, cmap = cmap, norm =norm)
+    fig, ax = plt.subplots()
+    fig.suptitle("Diffusion limited aggregation, step: " + str(dla.step) + "\neta: " + str(eta))
+    plt.imshow(dla.object_grid, cmap = cmap, norm =norm, origin='lower')
+
+    ax.grid(False)
+    ax.set_xticks([0,20,40,60,80,100])
+    ax.set_yticks([0,20,40,60,80,100])
+    ax.set_xlabel("x-coordinate")
+    ax.set_ylabel("y-coordinate")
+
+    yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+    pylab.gca().yaxis.set_major_formatter(yfmt)
+    pylab.gca().xaxis.set_major_formatter(yfmt)
+
     plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
     # plt.show()
 
-    fig = plt.figure()
-    fig.suptitle("DLA, step: " + str(dla.step) + "eta: " +str(eta))
-    plt.imshow(dla.grid)
-    plt.xticks([])
-    plt.yticks([])
+    fig, ax = plt.subplots()
+    fig.suptitle("Diffusion limited aggregation, step: " + str(dla.step) + "\neta: " +str(eta))
+    plt.imshow(dla.grid, origin='lower')
+    plt.colorbar()
+    ax.grid(False)
+    ax.set_xticks([0,20,40,60,80,100])
+    ax.set_yticks([0,20,40,60,80,100])
+    ax.set_xlabel("x-coordinate")
+    ax.set_ylabel("y-coordinate")
+
+    yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+    pylab.gca().yaxis.set_major_formatter(yfmt)
+    pylab.gca().xaxis.set_major_formatter(yfmt)
     plt.savefig("results/diffusion_eta1/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
     # plt.show()
 
+
+def numfmt(x, pos): # your custom formatter function: divide by 100.0
+    s = '{}'.format(x / 100.0)
+    return s
 
 if __name__ == '__main__':
     main()
