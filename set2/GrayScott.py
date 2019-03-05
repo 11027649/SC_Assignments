@@ -111,3 +111,11 @@ class GrayScott():
 
         self.u_next[i, j] = diff_u - reaction + fu
         self.v_next[i, j] = diff_v + reaction - fv
+
+        # self.u_next[i, j] = diff_u\
+        #     - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
+        #     + self.dt * self.f
+        #
+        # self.v_next[i, j] = diff_v\
+        #     + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j]\
+        #     - (self.f + self.k))
