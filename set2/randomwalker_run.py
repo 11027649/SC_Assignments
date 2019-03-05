@@ -14,7 +14,7 @@ import pylab
 
 def main():
     N = 100
-    p_stick = [0.4, 0.6, 0.8]
+    p_stick = [0.2, 0.4, 0.6, 0.8]
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white', 'red'])
@@ -29,8 +29,8 @@ def main():
 
         # hide gridlines
         ax.grid(False)
-        ax.set_xticks([0,20,40,60,80,100])
-        ax.set_yticks([0,20,40,60,80,100])
+        ax.set_xticks([0,20,40,60,80,99])
+        ax.set_yticks([0,20,40,60,80,99])
         ax.set_xlabel("x-coordinate")
         ax.set_ylabel("y-coordinate")
 
@@ -46,13 +46,15 @@ def main():
         plt.ylabel("y-coordinate")
         plt.xlabel("x-coordinate")
 
-        fig.suptitle("Monte Carlo method\nsteps: " + str(mc.step) + ", p-stick: " + str(p_stick), fontsize='large')
-        im = plt.imshow(mc.grid, cmap = cmap, norm =norm, origin='lower')
+        fig.suptitle("Monte Carlo method\nsteps: " + str(mc.step) + ", p-stick: " + str(p), fontsize='large')
+        im = plt.imshow(mc.grid, cmap = cmap, norm =norm, origin='lower', interpolation='nearest')
 
-        plt.savefig("results/randomwalker/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
+        plt.savefig("results/randomwalker/mc_pstick_" + str(p) + "_" + str(time.time()) + ".png")
 
 def numfmt(x, pos): # your custom formatter function: divide by 100.0
     s = '{}'.format(x / 100.0)
+    if x == 99:
+        s = 1.0
     return s
 
 
