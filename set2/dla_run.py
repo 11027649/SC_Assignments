@@ -47,12 +47,12 @@ def main():
         pylab.gca().yaxis.set_major_formatter(yfmt)
         pylab.gca().xaxis.set_major_formatter(yfmt)
 
-        plt.savefig("results/diffusion/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
+        plt.savefig("results/diffusion/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
         # plt.show()
 
         fig, ax = plt.subplots()
         fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " +str(eta), fontsize='large')
-        plt.imshow(dla.grid, origin='lower')
+        plt.imshow(dla.grid, origin='lower', interpolation='bicubic')
         plt.colorbar()
         ax.grid(False)
         ax.set_xticks([0,20,40,60,80,100])
@@ -63,7 +63,7 @@ def main():
         yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
         pylab.gca().yaxis.set_major_formatter(yfmt)
         pylab.gca().xaxis.set_major_formatter(yfmt)
-        plt.savefig("results/diffusion/diff_" + str(t) + "_object_eta_" + str(eta) + ".png", dpi=150)
+        plt.savefig("results/diffusion/diff_" + str(t) + "_eta_" + str(eta) + ".png", dpi=150)
         # plt.show()
 
 
