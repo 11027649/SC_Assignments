@@ -96,6 +96,7 @@ class GrayScott():
         diff_u = (self.dt * self.Du/self.dx**2)\
             * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[left, j]\
             + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])
+
         diff_v = (self.dt * self.Dv/self.dx**2)\
             * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
             + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])
@@ -103,6 +104,7 @@ class GrayScott():
         # reaction value
         reaction = self.u_conc[i, j] * (self.v_conc[i , j]**2)
 
+        # TODO add dt
         # with f values
         fu = self.f * (1 - self.u_conc[i, j])
         fv = (self.f + self.k) * self.v_conc[i, j]

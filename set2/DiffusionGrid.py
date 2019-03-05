@@ -87,6 +87,7 @@ class DiffusionGrid():
                 # add each time
                 y[j] += math.erfc((1-xj+2*i)/(2*np.sqrt(D*t))) - math.erfc((1+xj+2*i)/(2*np.sqrt(D*t)))
 
+        y.reverse()
         return y
 
     def set_omega(self, w):
@@ -96,8 +97,6 @@ class DiffusionGrid():
     def next_step(self):
         """ Compute concentration in each grid point according to the right
             method. """
-
-        print(self.converged)
 
         if not self.converged:
             self.next_step_sor()

@@ -19,17 +19,16 @@ def main():
     gs = GrayScott(N)
 
     # set up figure
-    fig = plt.figure()
+    fig, ax = plt.subplots()
+    ax.grid(False)
     fig.suptitle("Fluid Dynamics, Gray-Scott Model\n step:" + str(gs.time))
 
-    im =  plt.imshow(gs.u_conc)
+    im =  plt.imshow(gs.u_conc, origin='lower')
 
     # call the animator, blit = True means only redraw changed part
     anim = animation.FuncAnimation(fig, animate, frames=1000, interval=1, repeat=False)
 
     # show animation
-    plt.xticks([])
-    plt.yticks([])
     plt.colorbar()
     plt.show()
 

@@ -9,37 +9,51 @@ from RandomWalker import RandomWalker
 import time
 from matplotlib import colors
 
+import matplotlib.ticker as tkr     # has classes for tick-locating and -formatting
+import pylab
+
 def main():
     N = 100
-    p_stick = 0.9
+    p_stick = [0.4, 0.6, 0.8]
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white', 'red'])
     bounds = [0,0.5,1.5,2]
     norm = colors.BoundaryNorm(bounds, cmap.N)
 
-    mc = RandomWalker(N, p_stick)
+    for p in p_stick:
+        mc = RandomWalker(N, p)
 
-    # set up figure
-    fig, ax = plt.subplots()
+        # set up figure
+        fig, ax = plt.subplots()
 
-    # hide gridlines
-    ax.grid(False)
-    ax.set_xticks([0,0.2, 0.4, 0.6, 0.8, 1])
-    ax.set_yticks([0,0.2, 0.4, 0.6, 0.8, 1])
+        # hide gridlines
+        ax.grid(False)
+        ax.set_xticks([0,20,40,60,80,100])
+        ax.set_yticks([0,20,40,60,80,100])
+        ax.set_xlabel("x-coordinate")
+        ax.set_ylabel("y-coordinate")
 
-    while not mc.highest_object == N - 1:
-        print(mc.highest_object)
-        mc.next_step()
+        yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+        pylab.gca().yaxis.set_major_formatter(yfmt)
+        pylab.gca().xaxis.set_major_formatter(yfmt)
 
-    mc.remove_walker()
-    plt.ylabel("y-coordinate")
-    plt.xlabel("x-coordinate")
+        while not mc.highest_object == N - 1:
+            print(mc.highest_object)
+            mc.next_step()
 
-    fig.suptitle("MC, step: " + str(mc.step) + " p-stick: " + str(p_stick), fontsize='large')
-    im = plt.imshow(mc.grid, cmap = cmap, norm =norm, origin='lower')
+        mc.remove_walker()
+        plt.ylabel("y-coordinate")
+        plt.xlabel("x-coordinate")
 
-    plt.savefig("results/randomwalker/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
+        fig.suptitle("Monte Carlo method\nsteps: " + str(mc.step) + ", p-stick: " + str(p_stick), fontsize='large')
+        im = plt.imshow(mc.grid, cmap = cmap, norm =norm, origin='lower')
+
+        plt.savefig("results/randomwalker/mc_pstick_" + str(p_stick) + "_" + str(time.time()) + ".png")
+
+def numfmt(x, pos): # your custom formatter function: divide by 100.0
+    s = '{}'.format(x / 100.0)
+    return s
 
 
 if __name__ == '__main__':
