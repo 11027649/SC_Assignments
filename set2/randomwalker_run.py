@@ -14,8 +14,9 @@ import pylab
 
 def main():
     N = 100
-    p_stick = [1.0, 1.0, 1.0]
-    # p_stick = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+    # p_stick = [1.0, 1.0, 1.0]
+    p_stick = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+    p_stick.reverse()
 
     # create discrete colormap
     cmap = colors.ListedColormap(['navy', 'white', 'red'])
@@ -40,7 +41,7 @@ def main():
         pylab.gca().yaxis.set_major_formatter(yfmt)
         pylab.gca().xaxis.set_major_formatter(yfmt)
 
-        while not mc.highest_object == N - 1:
+        while not mc.object_size == 150:
             mc.next_step()
 
         mc.remove_walker()

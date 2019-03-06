@@ -9,7 +9,7 @@ object_grid = np.loadtxt("results/diffusion/" + object + ".txt")
 
 ## perform SOR with different omegas
 
-omegas = np.arange(1.70, 1.95, 0.01)
+omegas = np.arange(1.70, 1.99, 0.01)
 eta = 2.0
 gridsize = 100
 
@@ -19,10 +19,7 @@ for omega in omegas:
     current_state = DiffusionGrid(gridsize, eta)
     current_state.set_omega(omega)
     current_state.object_grid = object_grid
-
-    print(current_state.converged)
     current_state.add_object()
-    print(current_state.converged)
 
     while not current_state.converged:
         current_state.next_step()

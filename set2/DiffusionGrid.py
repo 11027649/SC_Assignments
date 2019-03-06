@@ -38,6 +38,8 @@ class DiffusionGrid():
         self.converged = False
         self.reached_boundaries = False
 
+        self.object_size = 1
+
         # this is needed for the aggregation
         self.candidates = []
         self.object = []
@@ -71,7 +73,7 @@ class DiffusionGrid():
         self.grid = np.zeros((self.width, self.height))
 
         for j in range(self.width):
-            self.grid[self.height - 1][j]
+            self.grid[self.height - 1][j] = 1
 
         # # iterate over grid, first row is always concentration 1, last row always 0
         # for i in range(self.height):
@@ -155,7 +157,9 @@ class DiffusionGrid():
                 if delta > max_delta:
                     max_delta = delta
 
-        if max_delta < 10**-2:
+        print(self.step, max_delta, self.object_size)
+
+        if max_delta < 10**-5:
             self.converged = True
             print(self.step, "CONVERGED!")
 
@@ -191,6 +195,8 @@ class DiffusionGrid():
 
                 # add new candidates if not at boundaries and if not already in there
                 new_candidates.extend([(x + 1,y),(x - 1, y),(x, y + 1),(x, y - 1)])
+
+                self.object_size += 1
 
         for new_coord in new_candidates:
             if not new_coord in self.candidates\

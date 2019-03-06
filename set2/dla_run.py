@@ -15,7 +15,7 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    etas = [2.0, 2.0, 2.0]
+    etas = [1.5, 2.0]
 
     # best omega from previous assignment
     omega = 1.95
@@ -26,22 +26,20 @@ def main():
         dla = DiffusionGrid(N, eta)
         dla.set_omega(omega)
 
-        while not dla.reached_boundaries:
-            if dla.step % 1000 == 0:
-                np.savetxt("results/diffusion/object_" + str(dla.step) + ".txt", dla.object_grid)
+        while dla.object_size <= 200:
+            # if dla.object_size % 25 == 0:
+            #     np.savetxt("results/diffusion/object_" + str(dla.object_size) + "_step_" + str(dla.step) + ".txt", dla.object_grid)
 
             dla.next_step()
 
         t = time.time()
 
-        cmap = colors.ListedColormap(['navy', 'white'])
-        bounds = [0,0.5,1.5,2]
-        norm = colors.BoundaryNorm(bounds, cmap.N)
-
         fig, ax = plt.subplots()
         fig.suptitle("Diffusion limited aggregation\nsteps: " + str(dla.step) + ", eta: " +str(eta), fontsize='large')
+
         plt.imshow(dla.grid, origin='lower', interpolation='bicubic')
         plt.colorbar()
+
         ax.grid(False)
         ax.set_xticks([0,20,40,60,80,100])
         ax.set_yticks([0,20,40,60,80,100])

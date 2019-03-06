@@ -33,8 +33,7 @@ class RandomWalker():
         # sticking probability
         self.p_stick = p_stick
 
-        # walker didn't stick on the neighbour of the object
-        self.not_neighbour = ()
+        self.object_size = 1
 
         self.initialize()
 
@@ -46,9 +45,6 @@ class RandomWalker():
         # initalize object seed at bottom of grid
         self.grid[0][int(self.width / 2)] = 1
 
-        # place the walker near the object to speed up the simulation
-        self.highest_object = 0
-
         # initialize first walker
         self.place_walker()
 
@@ -58,11 +54,7 @@ class RandomWalker():
 
         self.walker_x = random.choice(range(self.width))
 
-        # place walker near the object
-        if self.highest_object + 3 <= self.height - 1:
-            self.walker_y = self.highest_object + 3
-        else:
-            self.walker_y = self.height - 1
+        self.walker_y = self.height - 1
 
         # check if there's an object at this grid point
         if self.grid[self.walker_y][self.walker_x] == 1:
@@ -101,7 +93,7 @@ class RandomWalker():
     def next_step(self):
         """ The next step of the animation. """
 
-        print(self.step, self.highest_object)
+        print(self.step, self.object_size, self.walker_x, self.walker_y)
 
         # whether a random walker is added to the object depends on the sticking probability
         added = False
@@ -124,9 +116,7 @@ class RandomWalker():
                     # walker becomes part of the object
                     self.grid[self.walker_y][self.walker_x] = 1
 
-                    # update highest object
-                    if self.walker_y > self.highest_object:
-                        self.highest_object = self.walker_y
+                    self.object_size += 1
 
                     added = True
 
