@@ -46,20 +46,26 @@ class GrayScott():
         self.v_conc = np.zeros((self.width, self.height))
         self.u_conc = np.zeros((self.width, self.height))
 
-        # initailize the whole system with u = 0.5
-        for j in range(self.width):
-            for i in range(self.height):
-                self.u_conc[i,j] = 0.5
+        self.object1()
 
-        print(self.u_conc)
-
+    def object1(self):
         # initialize a small center with v = 0.25
         for j in range(40, 55):
             for i in range(40,55):
                 self.v_conc[i,j] = 0.25
 
-        print(self.v_conc)
 
+    def noise2(self):
+        # initailize the whole system with u = 0.5
+        for j in range(self.width):
+            for i in range(self.height):
+                self.u_conc[i,j] = 0.5
+
+    def noise3(self):
+        # initailize the whole system with u = 0.5
+        for j in range(self.width):
+            for i in range(self.height):
+                self.u_conc[i,j] = 0.5
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right

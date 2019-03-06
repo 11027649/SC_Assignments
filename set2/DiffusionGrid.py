@@ -68,15 +68,19 @@ class DiffusionGrid():
 
     def add_object(self):
         """ Refresh the grid (this is for the finding of the optimum omega). """
-        
-        # iterate over grid, first row is always concentration 1, last row always 0
-        for i in range(self.height):
-            # iterate over columns, first and last are periodic boundaries
-            for j in range(self.width):
+        self.grid = np.zeros((self.width, self.height))
 
-                # check if there's an object at this grid point
-                if self.object_grid[i][j] == 1:
-                    self.grid[i][j] = 0
+        for j in range(self.width):
+            self.grid[self.height - 1][j]
+
+        # # iterate over grid, first row is always concentration 1, last row always 0
+        # for i in range(self.height):
+        #     # iterate over columns, first and last are periodic boundaries
+        #     for j in range(self.width):
+        #
+        #         # check if there's an object at this grid point
+        #         if self.object_grid[i][j] == 1:
+        #             self.grid[i][j] = 0
 
 
     def analytic_solution(self):

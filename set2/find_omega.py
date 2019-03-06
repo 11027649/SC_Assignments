@@ -4,12 +4,12 @@ import csv
 import matplotlib.pyplot as plt
 
 ## load object
-object = "object_1000"
+object = "object_0"
 object_grid = np.loadtxt("results/diffusion/" + object + ".txt")
 
 ## perform SOR with different omegas
 
-omegas = np.arange(1.00, 1.80, 0.01)
+omegas = np.arange(1.70, 1.95, 0.01)
 eta = 2.0
 gridsize = 100
 
