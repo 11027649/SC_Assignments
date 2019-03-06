@@ -27,6 +27,9 @@ def main():
         dla.set_omega(omega)
 
         while not dla.reached_boundaries:
+            if dla.step % 1000 == 0:
+                np.savetxt("results/diffusion/object_" + str(dla.step) + ".txt", dla.object_grid)
+
             dla.next_step()
 
         t = time.time()
@@ -58,7 +61,6 @@ def main():
         plt.savefig("results/diffusion/diff_eta_" + str(eta) + "_" + str(t) + ".png", dpi=150)
         # plt.show()
 
-        np.savetxt("results/diffusion/diff_eta_" + str(eta) + "_" + str(t) + ".txt", dla.object_grid)
 
 def numfmt(x, pos): # your custom formatter function: divide by 100.0
     s = '{}'.format(x / 100.0)

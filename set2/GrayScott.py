@@ -24,6 +24,9 @@ class GrayScott():
         self.height = gridsize
         self.width = gridsize
 
+        self.total_u = []
+        self.total_v = []
+
         # initial parameters from the assignment
         self.Du = 0.16
         self.Dv = 0.08
@@ -62,6 +65,11 @@ class GrayScott():
         """ Compute concentration in each grid point according to the right
             method. """
 
+        if self.time % 50 == 0:
+            total_u, total_v = self.total_concentrations()
+            self.total_u.append(total_u)
+            self.total_v.append(total_v)
+
         self.next_step_GS()
         self.time += 1
 
@@ -90,32 +98,21 @@ class GrayScott():
 
     def update_conc(self, i, j, left, left_upper):
         """ Update the concentration of u, v, and p. """
-        # To do: append concentration p?
 
         # diffusion values
-        diff_u = (self.dt * self.Du/self.dx**2)\
+        self.u_next[i, j] = self.u_conc[i, j] + (self.dt * self.Du/self.dx**2)\
             * (self.u_conc[(i + 1) % self.width, j] + self.u_conc[left, j]\
-            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])
+            + self.u_conc[i, (j + 1) % self.height] + self.u_conc[i, left_upper] - 4 * self.u_conc[i, j])\
+            - self.u_conc[i, j] * (self.v_conc[i , j]**2) + self.f * (1 - self.u_conc[i, j])
 
-        diff_v = (self.dt * self.Dv/self.dx**2)\
+        self.v_next[i, j] = self.v_conc[i, j] + (self.dt * self.Dv/self.dx**2)\
             * (self.v_conc[(i + 1) % self.width, j] + self.v_conc[left, j]\
-            + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])
+            + self.v_conc[i, (j + 1) % self.height] + self.v_conc[i, left_upper] - 4 * self.v_conc[i, j])\
+            + self.u_conc[i, j] * (self.v_conc[i , j]**2)  - (self.f + self.k) * self.v_conc[i, j]
 
-        # reaction value
-        reaction = self.u_conc[i, j] * (self.v_conc[i , j]**2)
+    def total_concentrations(self):
+        """ Return total concentrations of u and v in the grid. """
+        u = np.sum(self.u_conc)
+        v = np.sum(self.v_conc)
 
-        # TODO add dt
-        # with f values
-        fu = self.f * (1 - self.u_conc[i, j])
-        fv = (self.f + self.k) * self.v_conc[i, j]
-
-        self.u_next[i, j] = diff_u - reaction + fu
-        self.v_next[i, j] = diff_v + reaction - fv
-
-        # self.u_next[i, j] = diff_u\
-        #     - self.dt * self.u_conc[i, j] * (self.v_conc[i , j]**2 + self.f)\
-        #     + self.dt * self.f
-        #
-        # self.v_next[i, j] = diff_v\
-        #     + self.dt * self.v_conc[i, j] * (self.u_conc[i, j] * self.v_conc[i, j]\
-        #     - (self.f + self.k))
+        return u, v
