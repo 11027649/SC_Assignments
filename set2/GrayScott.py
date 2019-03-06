@@ -46,26 +46,80 @@ class GrayScott():
         self.v_conc = np.zeros((self.width, self.height))
         self.u_conc = np.zeros((self.width, self.height))
 
-        self.object1()
+        # initialize the whole system with u = 0.5
+        for j in range(self.width):
+            for i in range(self.height):
+                self.u_conc[i,j] = 0.5
 
-    def object1(self):
+        # self.object()
+        self.noise1()
+        # self.noise2()
+        # self.noise3()
+
+
+    def object(self):
         # initialize a small center with v = 0.25
         for j in range(40, 55):
             for i in range(40,55):
                 self.v_conc[i,j] = 0.25
 
+    def noise1(self):
+        # initialize small rectangles with v = 0.25
+        # Love Letter with mini heart
+        for j in range(30, 35):
+            for i in range(40,70):
+                self.v_conc[i,j] = 0.25
+
+        for j in range(40, 55):
+            for i in range(40,45):
+                self.v_conc[i,j] = 0.25
+
+        for j in range(80, 85):
+            for i in range(80,85):
+                self.v_conc[i,j] = 0.25
 
     def noise2(self):
-        # initailize the whole system with u = 0.5
-        for j in range(self.width):
-            for i in range(self.height):
-                self.u_conc[i,j] = 0.5
+        # initialize small rectangles with v = 0.25
+        # Weird smiley
+        for j in range(20, 30):
+            for i in range(75, 85):
+                self.v_conc[i,j] = 0.25
+
+        for j in range(60,70):
+            for i in range(55, 65):
+                self.v_conc[i,j] = 0.25
+
+        # Horizontal
+        for j in range(40, 67):
+            for i in range(20,25):
+                self.v_conc[i,j] = 0.25
 
     def noise3(self):
-        # initailize the whole system with u = 0.5
-        for j in range(self.width):
-            for i in range(self.height):
-                self.u_conc[i,j] = 0.5
+        # initialize small rectangles with v = 0.25
+        # Battleship
+        # Vertical
+        for j in range(10, 14):
+            for i in range(40,54):
+                self.v_conc[i,j] = 0.25
+
+        for j in range(80, 84):
+            for i in range(55,64):
+                self.v_conc[i,j] = 0.25
+
+        # Horizontal
+        for j in range(40, 70):
+            for i in range(30,34):
+                self.v_conc[i,j] = 0.25
+
+        # Block
+        for j in range(30, 34):
+            for i in range(70,74):
+                self.v_conc[i,j] = 0.25
+
+        for j in range(20, 24):
+            for i in range(20,24):
+                self.v_conc[i,j] = 0.25
+
 
     def next_step(self):
         """ Compute concentration in each grid point according to the right
@@ -103,7 +157,7 @@ class GrayScott():
         self.u_conc = np.copy(self.u_next)
 
     def update_conc(self, i, j, left, left_upper):
-        """ Update the concentration of u, v, and p. """
+        """ Update the concentration of u and v in the grid. """
 
         # diffusion values
         self.u_next[i, j] = self.u_conc[i, j] + (self.dt * self.Du/self.dx**2)\
