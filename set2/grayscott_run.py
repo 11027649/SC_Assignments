@@ -68,7 +68,8 @@ def main():
     plt.xlabel("Time")
     plt.ylabel("Concentration")
     plt.legend()
-    plt.show()
+    plt.savefig("results/grayscott/totalconcentrations_" +str(t) + ".png", dpi=500 )
+
     # call the animator, blit = True means only redraw changed part
     # anim = animation.FuncAnimation(fig, animate, frames=1, interval=1, repeat=False)
     #
