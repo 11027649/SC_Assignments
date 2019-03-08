@@ -4,13 +4,13 @@ import csv
 import matplotlib.pyplot as plt
 
 ## load object
-object = "object_0"
-object_grid = np.loadtxt("results/diffusion/" + object + ".txt")
+object = "eta_1.0object_125"
+object_grid = np.loadtxt("results/diffusion/omega_for_eta_1.0/" + object + ".txt")
 
 ## perform SOR with different omegas
 
-omegas = np.arange(1.70, 1.99, 0.01)
-eta = 2.0
+omegas = np.arange(1.85, 1.99, 0.01)
+eta = 1.0
 gridsize = 100
 
 steps = []
@@ -27,6 +27,6 @@ for omega in omegas:
     # write down all omegas and the amount of steps it takes with that omega
     with open("omega_results.csv", 'a') as resultsfile:
         csvwriter = csv.writer(resultsfile, delimiter=',')
-        csvwriter.writerow([omega, current_state.step])
+        csvwriter.writerow(["125", eta, omega, current_state.step])
 
 ## save steps

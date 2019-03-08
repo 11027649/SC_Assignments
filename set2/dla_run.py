@@ -15,7 +15,7 @@ def main():
     N = 100
     # eta<1, compact objects, eta = 0 Eden Cluster, =1 normal DLA cluster
     # eta > 1 more open cluster
-    etas = [1.5, 2.0]
+    etas = [1.0]
 
     # best omega from previous assignment
     omega = 1.95
@@ -26,9 +26,10 @@ def main():
         dla = DiffusionGrid(N, eta)
         dla.set_omega(omega)
 
-        while dla.object_size <= 200:
-            # if dla.object_size % 25 == 0:
-            #     np.savetxt("results/diffusion/object_" + str(dla.object_size) + "_step_" + str(dla.step) + ".txt", dla.object_grid)
+        while dla.object_size <= 150:
+
+            if dla.converged == True and (dla.object_size % 25 == 0 or dla.object_size % 24 == 0 or dla.object_size % 26 == 0):
+                np.savetxt("results/diffusion/eta_" +str(eta) + "object_" + str(dla.object_size) + ".txt", dla.object_grid)
 
             dla.next_step()
 

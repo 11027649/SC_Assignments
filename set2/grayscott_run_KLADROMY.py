@@ -50,14 +50,24 @@ def main():
         print("preperation,", i)
         gs.next_step()
 
+# https://mrob.com/pub/comp/xmorphia/pearson-classes.html
+# # object 1 Type eta (η)?? = (gs.u_conc) / (gs.u_conc + gs.v_conc)) with
+#     self.f = 0.035
+#     self.k = 0.060
 
+# object 2 Type xi (ξ) = gs.u_conc with
+# self.f = 0.010
+# self.k = 0.041
+
+# self.f = 0.04
+# self.k = 0.06
         if i % 50 == 0:
             fig.suptitle("Reaction Diffusion, Gray-Scott Model\n step:" + str(gs.time))
             im.set_data(gs.u_conc)
-            plt.savefig("results/grayscott/KLADROMY/noise1_time_" + str(i) + "_" + str(t) + ".png", dpi=500)
+            plt.savefig("results/grayscott/Grayscott/object4_time_" + str(i) + "_" + str(t) + ".png", dpi=500)
 
-    np.savetxt("results/grayscott/KLADROMY/noise1_conc_u.txt", gs.total_u)
-    np.savetxt("results/grayscott/KLADROMY/noise1_conc_v.txt", gs.total_v)
+    np.savetxt("results/grayscott/Grayscott/object4_conc_u.txt", gs.total_u)
+    np.savetxt("results/grayscott/Grayscott/object4_conc_v.txt", gs.total_v)
 
 
     plt.figure()
@@ -68,7 +78,7 @@ def main():
     plt.xlabel("Time")
     plt.ylabel("Concentration")
     plt.legend()
-    plt.savefig("results/grayscott/KLADROMY/noise1_totalconcentrations_" +str(t) + ".png", dpi=500 )
+    plt.savefig("results/grayscott/Grayscott/object4_totalconcentrations_" +str(t) + ".png", dpi=500 )
 
     # call the animator, blit = True means only redraw changed part
     # anim = animation.FuncAnimation(fig, animate, frames=1, interval=1, repeat=False)
