@@ -64,10 +64,10 @@ def main():
         if i % 50 == 0:
             fig.suptitle("Reaction Diffusion, Gray-Scott Model\n step:" + str(gs.time))
             im.set_data(gs.u_conc)
-            plt.savefig("results/grayscott/Grayscott/object4_time_" + str(i) + "_" + str(t) + ".png", dpi=500)
+            plt.savefig("results/grayscott/noise/noiseB4_time_" + str(i) + "_" + str(t) + ".png", dpi=500)
 
-    np.savetxt("results/grayscott/Grayscott/object4_conc_u.txt", gs.total_u)
-    np.savetxt("results/grayscott/Grayscott/object4_conc_v.txt", gs.total_v)
+    np.savetxt("results/grayscott/noise/noiseB4_conc_u.txt", gs.total_u)
+    np.savetxt("results/grayscott/noise/noiseB4_conc_v.txt", gs.total_v)
 
 
     plt.figure()
@@ -78,7 +78,7 @@ def main():
     plt.xlabel("Time")
     plt.ylabel("Concentration")
     plt.legend()
-    plt.savefig("results/grayscott/Grayscott/object4_totalconcentrations_" +str(t) + ".png", dpi=500 )
+    plt.savefig("results/grayscott/noise/noiseB4_totalconcentrations_" +str(t) + ".png", dpi=500 )
 
     # call the animator, blit = True means only redraw changed part
     # anim = animation.FuncAnimation(fig, animate, frames=1, interval=1, repeat=False)

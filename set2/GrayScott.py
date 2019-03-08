@@ -51,9 +51,9 @@ class GrayScott():
             for i in range(self.height):
                 self.u_conc[i,j] = 0.5
 
-        self.object()
-        # self.noise1()
-        # self.noise2()
+        # self.object()
+        # self.noiseA()
+        self.noiseB()
         # self.noise3()
 
 
@@ -63,7 +63,7 @@ class GrayScott():
             for i in range(40,60):
                 self.v_conc[i,j] = 0.25
 
-    def noise1(self):
+    def noiseA(self):
         # initialize small rectangles with v = 0.25
         # Love Letter with mini heart
         for j in range(30, 35):
@@ -78,7 +78,7 @@ class GrayScott():
             for i in range(76,85):
                 self.v_conc[i,j] = 0.25
 
-    def noise2(self):
+    def noiseB(self):
         # initialize small rectangles with v = 0.25
         # Weird smiley
         for j in range(20, 30):
@@ -94,7 +94,7 @@ class GrayScott():
             for i in range(20,25):
                 self.v_conc[i,j] = 0.25
 
-    def noise3(self):
+    def noiseC(self):
         # initialize small rectangles with v = 0.25
         # Battleship
         # Vertical
