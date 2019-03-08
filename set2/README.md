@@ -9,7 +9,7 @@ For the randomWalker we implemented the placing of the walker near the object to
 
 ## Monte Carlo simulation of DLA
 * B. Run ```python randomwalker_run.py``` with p_stick = 1
-* C. Run ```python vibrating_string_animation.py``` with the right p_stick.
+* C. Run ```python randomwalker_run.py``` with the right p_stick.
 
 ## The Gray-Scott model - A reaction-diffusion system
-* D. Run ```python grayscott_run.py```
+* D. Run ```python grayscott_run.py``` with the right settings.
