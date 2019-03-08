@@ -34,8 +34,8 @@ class GrayScott():
         self.dx = 1
         self.dt = 1
 
-        self.f = 0.035
-        self.k = 0.060
+        self.f = 0.062
+        self.k = 0.061
 
         self.time = 0
 
@@ -51,16 +51,16 @@ class GrayScott():
             for i in range(self.height):
                 self.u_conc[i,j] = 0.5
 
-        # self.object()
-        self.noise1()
+        self.object()
+        # self.noise1()
         # self.noise2()
         # self.noise3()
 
 
     def object(self):
         # initialize a small center with v = 0.25
-        for j in range(40, 55):
-            for i in range(40,55):
+        for j in range(40, 60):
+            for i in range(40,60):
                 self.v_conc[i,j] = 0.25
 
     def noise1(self):
@@ -74,8 +74,8 @@ class GrayScott():
             for i in range(40,45):
                 self.v_conc[i,j] = 0.25
 
-        for j in range(80, 85):
-            for i in range(80,85):
+        for j in range(76, 85):
+            for i in range(76,85):
                 self.v_conc[i,j] = 0.25
 
     def noise2(self):
