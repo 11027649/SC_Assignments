@@ -9,24 +9,33 @@ import seaborn as sns
 sns.set()
 
 def main():
-    L = 15
-
+    L = 1
+    N = 3
     # for now the shape is standard a square
     shape = ["Square", "Rectangle", "Circle"]
 
-    M = make_matrix(L,L)
+    M = make_matrix(N,N)
     print(M)
+    dx = (L/N)
+    M = (1/dx**2) * M
 
     eigenvalues, eigenvectors = linalg.eig(M)
     print(eigenvalues.real)
     print(eigenvectors)
+
+    # new_list = [eigenvector for _,eigenvector in sorted(zip(eigenvalues, eigenvectors))]
+    #
+    # print(eigenvalues.real)
+    # print(new_list)
 
     for i, vector in enumerate(eigenvectors):
         if i < 10:
             plt.figure()
             plt.grid(False)
             eigenvalue = eigenvalues[i]
-            matrix = np.reshape(vector, (L,L))
+            matrix = np.reshape(vector.real, (N,N))
+            print("Hoi ik ben bij deze i: ", str(i))
+            print(vector)
             print(matrix)
 
             plt.title("$\lambda$: " + str(eigenvalue.real))
