@@ -4,45 +4,57 @@ from scipy import linalg
 from scipy.sparse import linalg as linalg2
 
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
 import seaborn as sns
 sns.set()
 
 def main():
     L = 1
+    # amount of discretization steps
     N = 3
+
     # for now the shape is standard a square
     shape = ["Square", "Rectangle", "Circle"]
 
     M = make_matrix(N,N)
-    print(M)
+
     dx = (L/N)
     M = (1/dx**2) * M
 
     eigenvalues, eigenvectors = linalg.eig(M)
-    print(eigenvalues.real)
-    print(eigenvectors)
+    eigenvectors = eigenvectors.T
+    eigenvalues = eigenvalues.real
 
-    # new_list = [eigenvector for _,eigenvector in sorted(zip(eigenvalues, eigenvectors))]
-    #
-    # print(eigenvalues.real)
-    # print(new_list)
+    # sort eigenvectors based on eigenvalue
+    eigenvectors = sort_list(eigenvectors, eigenvalues)
+
+    # smallest eigenvalues
+    eigenvalues.sort()
+
+    # make a fancy 3D plot? :-D
+    x = np.linspace(-0.5, 0.5, N)
+    y = np.linspace(-0.5, 0.5, N)
+
+    X, Y = np.meshgrid(x, y)
 
     for i, vector in enumerate(eigenvectors):
+        # plot first .. frequencies
         if i < 10:
             plt.figure()
             plt.grid(False)
             eigenvalue = eigenvalues[i]
             matrix = np.reshape(vector.real, (N,N))
-            print("Hoi ik ben bij deze i: ", str(i))
-            print(vector)
-            print(matrix)
 
             plt.title("$\lambda$: " + str(eigenvalue.real))
-            plt.imshow(matrix, origin="lower")
+            plt.imshow(matrix, origin="lower", vmin=-0.5, vmax=0.5, interpolation='bicubic')
             plt.colorbar()
-            plt.savefig("results/drum" + str(eigenvalue.real) + ".png", dpi=150)
+            plt.savefig("results/" + str(N) + "/drum" + str(eigenvalue.real) + ".png", dpi=150)
 
+            fig = plt.figure()
+            ax = plt.axes(projection='3d')
+            ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+            plt.show()
 
     # eigenvalues, eigenvectors = linalg.eigh(M)
     # print(eigenvalues)
@@ -97,6 +109,11 @@ def make_matrix(rows, cols):
 
     return M
 
+def sort_list(list1, list2):
+    zipped_pairs = zip(list2, list1)
+    z = [x for _, x in sorted(zipped_pairs)]
+
+    return z
 
 if __name__ == '__main__':
     main()
