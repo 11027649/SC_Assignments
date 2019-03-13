@@ -3,8 +3,13 @@ import scipy as sp
 from scipy import linalg
 from scipy.sparse import linalg as linalg2
 
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+sns.set()
+
 def main():
-    L = 3
+    L = 15
 
     # for now the shape is standard a square
     shape = ["Square", "Rectangle", "Circle"]
@@ -15,6 +20,20 @@ def main():
     eigenvalues, eigenvectors = linalg.eig(M)
     print(eigenvalues.real)
     print(eigenvectors)
+
+    for i, vector in enumerate(eigenvectors):
+        if i < 10:
+            plt.figure()
+            plt.grid(False)
+            eigenvalue = eigenvalues[i]
+            matrix = np.reshape(vector, (L,L))
+            print(matrix)
+
+            plt.title("$\lambda$: " + str(eigenvalue.real))
+            plt.imshow(matrix, origin="lower")
+            plt.colorbar()
+            plt.savefig("results/drum" + str(eigenvalue.real) + ".png", dpi=150)
+
 
     # eigenvalues, eigenvectors = linalg.eigh(M)
     # print(eigenvalues)
