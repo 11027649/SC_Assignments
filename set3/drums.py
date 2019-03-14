@@ -12,10 +12,11 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 3
+    N = 50
 
     # for now the shape is standard a square
     shape = ["Square", "Rectangle", "Circle"]
+
 
     M = make_matrix(N,N)
 
@@ -24,13 +25,14 @@ def main():
 
     eigenvalues, eigenvectors = linalg.eig(M)
     eigenvectors = eigenvectors.T
-    eigenvalues = eigenvalues.real
+    eigenvalues = abs(eigenvalues.real)
 
-    # sort eigenvectors based on eigenvalue
-    eigenvectors = sort_list(eigenvectors, eigenvalues)
+    eigenvalues_sorted = []
+    for eigenvalue in eigenvalues:
+        eigenvalues_sorted.append(eigenvalue)
+    eigenvalues_sorted.sort()
 
-    # smallest eigenvalues
-    eigenvalues.sort()
+    max_eigenvalue = eigenvalues_sorted[9]
 
     # make a fancy 3D plot? :-D
     x = np.linspace(-0.5, 0.5, N)
@@ -38,23 +40,28 @@ def main():
 
     X, Y = np.meshgrid(x, y)
 
-    for i, vector in enumerate(eigenvectors):
+    for i in range((len(eigenvalues_sorted))):
+
         # plot first .. frequencies
-        if i < 10:
+        if eigenvalues[i] <= max_eigenvalue:
             plt.figure()
             plt.grid(False)
+
             eigenvalue = eigenvalues[i]
-            matrix = np.reshape(vector.real, (N,N))
+            eigenvector = eigenvectors[i]
+
+            matrix = np.reshape(eigenvector.real, (N,N))
 
             plt.title("$\lambda$: " + str(eigenvalue.real))
             plt.imshow(matrix, origin="lower", vmin=-0.5, vmax=0.5, interpolation='bicubic')
             plt.colorbar()
-            plt.savefig("results/" + str(N) + "/drum" + str(eigenvalue.real) + ".png", dpi=150)
+            plt.savefig("results/drum" + str(eigenvalue.real) + ".png", dpi=150)
 
             fig = plt.figure()
+            plt.title("$\lambda$: " + str(eigenvalue.real))
             ax = plt.axes(projection='3d')
             ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            plt.show()
+            plt.savefig("results/drum" + str(eigenvalue.real) + "_3D.png", dpi=150)
 
     # eigenvalues, eigenvectors = linalg.eigh(M)
     # print(eigenvalues)
@@ -107,13 +114,10 @@ def make_matrix(rows, cols):
 
         M[i,i] = -sum
 
+    np.fill_diagonal(M, -4)
+
     return M
 
-def sort_list(list1, list2):
-    zipped_pairs = zip(list2, list1)
-    z = [x for _, x in sorted(zipped_pairs)]
-
-    return z
 
 if __name__ == '__main__':
     main()
