@@ -12,12 +12,11 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 3
+    N = 50
 
     # for now the shape is standard a square
     shapes = ["Square", "Rectangle", "Circle"]
-    shapes = ["Rectangle"]
-    shape = "Square"
+    shapes = ["Square"]
 
     for shape in shapes:
         if shape == "Circle":
@@ -97,12 +96,12 @@ def graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, heig
             plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + ".png", dpi=150)
             plt.close()
 
-            # fig = plt.figure()
-            # plt.title("$\lambda$: " + str(eigenvalue.real))
-            # ax = plt.axes(projection='3d')
-            # ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            # plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
-            # plt.close()
+            fig = plt.figure()
+            plt.title("$\lambda$: " + str(eigenvalue.real))
+            ax = plt.axes(projection='3d')
+            ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+            plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
+            plt.close()
 
 def make_square_matrix(L, N):
     """ This is a function that makes the matrix. """
