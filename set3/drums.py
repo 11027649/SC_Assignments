@@ -12,39 +12,44 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 50
+    N = 5
 
     # for now the shape is standard a square
     shapes = ["Square", "Rectangle", "Circle"]
-    shapes = ["Square"]
+    shapes = ["Circle"]
 
     for shape in shapes:
-        if shape == "Circle":
-            pass
-        elif shape == "Square":
-            M = make_square_matrix(L, N)
+        if shape == "Square":
             width = N
+            height = N
+            M = make_square_matrix(L, N)
         elif shape == "Rectangle":
+            width = N
             height = 2 * N
-
             M = make_rectangle_matrix(L, N, height)
+        elif shape == "Circle":
+            width = N
+            height = N
+            M = make_circle_matrix(L, N)
 
 
         print(M)
         # find eigenvalues and eigenvectors of the matrix
-        eigenvalues, eigenvectors = find_eigenvalues(M, N)
+        eigenvalues, eigenvectors = find_eigenvalues(M)
 
         # get the eigenvalue of the 10th mode
         max_eigenvalue = get_max_eigenvalue(eigenvalues)
         print(max_eigenvalue)
 
         # plot the 10 first modes
-        graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, N, height)
+        graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
 
 
 
 
-def find_eigenvalues(M, N):
+def find_eigenvalues(M):
+    """ Calculate the eigenvalues and corresponding eigenvectors
+    of the matrix M. """
     # eigenvalues, eigenvectors = linalg.eig(M)
     # eigenvalues, eigenvectors = linalg2.eigs(M, k=2500)
     # print(eigenvalues, len(eigenvalues))
@@ -58,8 +63,9 @@ def find_eigenvalues(M, N):
     return eigenvalues, eigenvectors
 
 def get_max_eigenvalue(eigenvalues):
+    """ Return the maximum eigenvalue of the eigenvalues. """
     eigenvalues_sorted = []
-    
+
     for eigenvalue in eigenvalues:
         eigenvalues_sorted.append(eigenvalue)
     eigenvalues_sorted.sort()
@@ -72,13 +78,13 @@ def get_max_eigenvalue(eigenvalues):
     return max_eigenvalue
 
 def graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height):
-    # make a fancy 3D plot? :-D
+    """ Makes an 2D and 3D plot of the drum. """
     x = np.linspace(-0.5, 0.5, width)
     y = np.linspace(-0.5, 0.5, height)
 
     X, Y = np.meshgrid(x, y)
 
-    for i in range((len(eigenvectors))):
+    for i in range(len(eigenvectors)):
         # plot first .. frequencies
         if eigenvalues[i] <= max_eigenvalue:
 
@@ -103,16 +109,18 @@ def graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, heig
             plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
             plt.close()
 
+
+
 def make_square_matrix(L, N):
-    """ This is a function that makes the matrix. """
-   
-    M = np.zeros((N**2, N**2))
+    """ This is a function that makes the matrix of a square. """
+    dimension = N**2
+    M = np.zeros((dimension, dimension))
     dx = (L/N)
 
     outer_diagonal = N
     inner_diagonal = 1
 
-    for i in range(N**2):
+    for i in range(dimension):
         try:
             M[outer_diagonal, i] = 1 * (1/dx**2)
             M[i, outer_diagonal] = 1 * (1/dx**2)
@@ -134,18 +142,55 @@ def make_square_matrix(L, N):
     return M
 
 def make_rectangle_matrix(L, N, height):
+    """ This is a function that makes the matrix of a rectangle. """
     dimension = N * height
+    M = np.zeros((dimension, dimension))
+    dx = (L/N)
 
     # TODO: This can't be right, there's two L here ... different amount
     # of discretization steps in the two directions (I think?)
-    dx = (L/N)
-
-    M = np.zeros((dimension, dimension))
 
     outer_diagonal = N
     inner_diagonal = 1
 
-    for i in range(N**2):
+    for i in range(dimension): #range(N**2):
+        try:
+            M[outer_diagonal, i] = 1 * (1/dx**2)
+            M[i, outer_diagonal] = 1 * (1/dx**2)
+        except IndexError:
+            pass
+
+        try:
+            if not inner_diagonal % N == 0:
+                M[inner_diagonal, i] = 1 * (1/dx**2)
+                M[i, inner_diagonal] = 1 * (1/dx**2)
+        except IndexError:
+            pass
+
+        outer_diagonal += 1
+        inner_diagonal += 1
+
+    np.fill_diagonal(M, -4 * (1/dx**2))
+
+    return M
+
+def make_circle_matrix(L, N):
+    """ This is a function that makes the matrix of a circle.
+    Grid points within the distance R = L/2 from the center belong to the domain. """
+    # N = 5 --> R = 2, dim = 13
+    # N = 7 -->
+
+    # Boundary condition for the dimension
+    R = round(N/2) #ACTUALLY N = L!?
+    dimension = math.ceil(math.pi * R**2)
+    print(dimension)
+    M = np.zeros((dimension, dimension))
+    dx = (L/N)
+
+    outer_diagonal = N
+    inner_diagonal = 1
+
+    for i in range(dimension):
         try:
             M[outer_diagonal, i] = 1 * (1/dx**2)
             M[i, outer_diagonal] = 1 * (1/dx**2)
