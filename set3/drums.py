@@ -171,6 +171,21 @@ def make_rectangle_matrix(L, N, height):
 
     return M
 
+def make_circle2(L,N):
+    # LITTERALLY A CIRCLE 
+    R = N/2
+    N = 5
+    radius = 1 #math.floor(N/2)
+    print(N, radius)
+    # C = np.zeros((N, N))
+    # small_circle = np.zeros((N-2, N-2))
+
+    kernel = np.zeros((2*radius+1, 2*radius+1))
+    y,x = np.ogrid[-radius:radius+1, -radius:radius+1]
+    mask = x**2 + y**2 <= radius**2
+    kernel[mask] = 1
+    print(kernel)
+
 def make_circle_matrix(L, N):
     """ This is a function that makes the matrix of a circle.
         Grid points within the distance R = L/2 from the center belong to the domain. """
