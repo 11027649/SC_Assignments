@@ -4,6 +4,10 @@ from scipy import linalg
 from scipy.sparse import linalg as linalg2
 
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+from Drum import Drum
+
 from mpl_toolkits import mplot3d
 import math
 import seaborn as sns
@@ -32,8 +36,6 @@ def main():
             height = N
             M = make_circle_matrix(L, N)
 
-
-        print(M)
         # find eigenvalues and eigenvectors of the matrix
         eigenvalues, eigenvectors = find_eigenvalues(M)
 
@@ -42,12 +44,11 @@ def main():
         print(max_eigenvalue)
 
         # plot the 10 first modes
-        graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
+        eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
+        graph_surfaces(eigenmodes, width, height)
 
         # make animation
-        show_animation(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
-
-
+        # show_animation(eigenmodes)
 
 
 def find_eigenvalues(M):
@@ -58,7 +59,6 @@ def find_eigenvalues(M):
     # print(eigenvalues, len(eigenvalues))
 
     eigenvalues, eigenvectors = linalg.eig(M)
-    print(eigenvalues, len(eigenvalues))
 
     eigenvectors = eigenvectors.T
     eigenvalues = abs(eigenvalues.real)
@@ -74,84 +74,53 @@ def get_max_eigenvalue(eigenvalues):
     eigenvalues_sorted.sort()
 
     try:
-        max_eigenvalue = eigenvalues_sorted[9]
+        max_eigenvalue = eigenvalues_sorted[10]
     except IndexError:
         max_eigenvalue = math.inf
 
     return max_eigenvalue
 
-def graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height):
+def graph_surfaces(eigenmodes, width, height):
     """ Makes an 2D and 3D plot of the drum. """
+
     x = np.linspace(-0.5, 0.5, width)
     y = np.linspace(-0.5, 0.5, height)
 
     X, Y = np.meshgrid(x, y)
 
+    for i, eigenvalue in enumerate(eigenmodes):
+        plt.figure()
+        plt.grid(False)
+
+        plt.title("$\lambda$: " + str(eigenvalue.real))
+        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05, interpolation='bicubic')
+        plt.colorbar()
+        plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + ".png", dpi=150)
+        plt.close()
+
+        plt.title("$\lambda$: " + str(eigenvalue.real))
+        ax = plt.axes(projection='3d')
+        ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+        plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
+        plt.close()
+
+def find_eigenmodes(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height):
+    """ Finds eigenmodes that belong with the smallest eigenvalues. """
+
+    eigenmodes = {}
+
     for i in range(len(eigenvectors)):
         # plot first .. frequencies
         if eigenvalues[i] <= max_eigenvalue:
-
-            plt.figure()
-            plt.grid(False)
 
             eigenvalue = eigenvalues[i]
             eigenvector = eigenvectors[i]
 
             matrix = np.reshape(eigenvector.real, (width, height))
 
-            plt.title("$\lambda$: " + str(eigenvalue.real))
-            plt.imshow(matrix, cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05, interpolation='bicubic')
-            plt.colorbar()
-            plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + ".png", dpi=150)
-            plt.close()
+            eigenmodes[eigenvalue] = matrix
 
-            # fig = plt.figure()
-            # plt.title("$\lambda$: " + str(eigenvalue.real))
-            # ax = plt.axes(projection='3d')
-            # ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            # plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
-            # plt.close()
-
-def show_animation(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height):
-    dt = 0.001
-    txmax = 0.2
-    timesteps = math.ceil(tmax/dt)
-
-    # initiate image
-    current_state = matrix
-
-    # set up figure
-    fig = plt.figure()
-    fig.suptitle("Animation")
-
-    im = plt.imshow(matrix, interpolation='bicubic')
-
-    # animation
-    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, blit=True, repeat=False)
-
-def animate(i):
-    """ Calculate next state and set that for the animation. """
-    next_step()
-    im.set_data(matrix)
-    return im,
-
-def next_step():
-    current_state = matrix
-    next_state = copy.copy(matrix)
-
-    # iterate over matrix
-    for i in range(height):
-        for j in range(width):
-            previous_state = matrix[i][j] #MEHH....??
-
-            next_state[i][j] = ((c * dt)/ dx)** 2\
-                (current_state[i+1][j] + current_state[i-1][j]\
-                + current_state[i][j-1] + current_state[i][j+1]\
-                - 4 * current_state[i][j])\
-                * 2 * current_state[i][j] - previous_state
-
-
-
+    return eigenmodes
 
 def make_square_matrix(L, N):
     """ This is a function that makes the matrix of a square. """
@@ -218,7 +187,7 @@ def make_rectangle_matrix(L, N, height):
 
 def make_circle_matrix(L, N):
     """ This is a function that makes the matrix of a circle.
-    Grid points within the distance R = L/2 from the center belong to the domain. """
+        Grid points within the distance R = L/2 from the center belong to the domain. """
     # N = 5 --> R = 2, dim = 13
     # N = 7 -->
 
@@ -253,6 +222,40 @@ def make_circle_matrix(L, N):
 
     return M
 
+def show_animation(eigenmodes):
+    dt = 0.001
+    tmax = 0.2
+    timesteps = math.ceil(tmax/dt)
+
+    # this needs to be global for the animation
+    global current_state, fig, ax
+
+    for eigenvalue in eigenmodes:
+        # initiate image
+        current_state = Drum(eigenmodes[eigenvalue], eigenvalue)
+
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
+    ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+    ax.set_xlim(0,20)
+    ax.set_ylim(0,20)
+    ax.set_zlim(-0.1,0.1)
+    # animation
+    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, repeat=False)
+    plt.show()
+
+def animate(i):
+    """ Calculate next state and set that for the animation. """
+    ax.clear()
+    ax.set_zlim(-0.1,0.1)
+
+    current_state.next_step()
+
+    plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
+    ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+
+    return plt,
 
 if __name__ == '__main__':
     main()
