@@ -12,11 +12,11 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 5
+    N = 20
 
     # for now the shape is standard a square
     shapes = ["Square", "Rectangle", "Circle"]
-    shapes = ["Circle"]
+    shapes = ["Square"]
 
     for shape in shapes:
         if shape == "Square":
@@ -43,6 +43,9 @@ def main():
 
         # plot the 10 first modes
         graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
+
+        # make animation
+        show_animation(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height)
 
 
 
@@ -102,12 +105,51 @@ def graph_surfaces(eigenvectors, eigenvalues, max_eigenvalue, shape, width, heig
             plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + ".png", dpi=150)
             plt.close()
 
-            fig = plt.figure()
-            plt.title("$\lambda$: " + str(eigenvalue.real))
-            ax = plt.axes(projection='3d')
-            ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-            plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
-            plt.close()
+            # fig = plt.figure()
+            # plt.title("$\lambda$: " + str(eigenvalue.real))
+            # ax = plt.axes(projection='3d')
+            # ax.plot_surface(X, Y, matrix, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+            # plt.savefig("results/drum" + str(eigenvalue.real) + "_" + str(i) + "_3D.png", dpi=150)
+            # plt.close()
+
+def show_animation(eigenvectors, eigenvalues, max_eigenvalue, shape, width, height):
+    dt = 0.001
+    txmax = 0.2
+    timesteps = math.ceil(tmax/dt)
+
+    # initiate image
+    current_state = matrix
+
+    # set up figure
+    fig = plt.figure()
+    fig.suptitle("Animation")
+
+    im = plt.imshow(matrix, interpolation='bicubic')
+
+    # animation
+    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, blit=True, repeat=False)
+
+def animate(i):
+    """ Calculate next state and set that for the animation. """
+    next_step()
+    im.set_data(matrix)
+    return im,
+
+def next_step():
+    current_state = matrix
+    next_state = copy.copy(matrix)
+
+    # iterate over matrix
+    for i in range(height):
+        for j in range(width):
+            previous_state = matrix[i][j] #MEHH....??
+
+            next_state[i][j] = ((c * dt)/ dx)** 2\
+                (current_state[i+1][j] + current_state[i-1][j]\
+                + current_state[i][j-1] + current_state[i][j+1]\
+                - 4 * current_state[i][j])\
+                * 2 * current_state[i][j] - previous_state
+
 
 
 
@@ -153,7 +195,7 @@ def make_rectangle_matrix(L, N, height):
     outer_diagonal = N
     inner_diagonal = 1
 
-    for i in range(dimension): #range(N**2):
+    for i in range(dimension):
         try:
             M[outer_diagonal, i] = 1 * (1/dx**2)
             M[i, outer_diagonal] = 1 * (1/dx**2)
