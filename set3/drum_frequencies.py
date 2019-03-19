@@ -15,41 +15,109 @@ import seaborn as sns
 sns.set()
 
 def main():
-    L = 1
-    # amount of discretization steps
-    N = 10 * L
+    lengths = [1, 2, 3, 4, 5]
+    colors = ["orchid", "mediumspringgreen", "red", "green", "yellow", "blue",\
+                "purple", "cyan", "deepskyblue", "lawngreen", "mediumslateblue",\
+                "orange", "aqua", "greenyellow"]
+
+    range = np.arange(5, 55, 5)
 
     # shape can be "Square", "Rectangle" or "Circle"
     shape = "Rectangle"
 
-    if shape == "Square":
-        width = N
-        height = N
-        M = make_square_matrix(L, N)
-    elif shape == "Rectangle":
-        width = N
-        height = 2 * N
-        M = make_rectangle_matrix(L, N, height)
+    L = 1
+    disc_steps = [r * L for r in range]
 
-    elif shape == "Circle":
-        width = N
-        height = N
-        M = make_circle_matrix(L, N)
+    # f_dependence_on_L(lengths, colors, shape)
+    f_dependence_on_N(disc_steps, colors, shape)
 
-    # find eigenvalues and eigenvectors of the matrix
-    eigenvalues, eigenvectors = find_eigenvalues(M)
+def f_dependence_on_L(lengths, colors, shape):
+    """ dependence of frequency on length of drum """
 
-    # sort from low to high
-    idx = eigenvalues.argsort()[::-1]
-    eigenvalues = eigenvalues[idx]
-    eigenvectors = eigenvectors[idx, :]
+    for i, L in enumerate(lengths):
+        print(i, L)
+        # amount of discretization steps
+        N = 10 * L
 
-    # plot the 10 first modes
-    # eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
-    # graph_surfaces(eigenmodes, L, width, height)
+        if shape == "Square":
+            width = N
+            height = N
+            M = make_square_matrix(L, N)
+        elif shape == "Rectangle":
+            width = N
+            height = 2 * N
+            M = make_rectangle_matrix(L, N, height)
+        elif shape == "Circle":
+            width = N
+            height = N
+            M = make_circle_matrix(L, N)
 
-    # make animation
-    # show_animation(eigenmodes)
+        # find eigenvalues and eigenvectors of the matrix
+        eigenvalues, eigenvectors = find_eigenvalues(M)
+
+        # sort from low to high
+        idx = eigenvalues.argsort()[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[idx, :]
+
+        # plot frequencies
+        freq = frequencies(eigenvalues)
+
+        for f in freq:
+            print(f)
+            plt.scatter(L, f, color=colors[i])
+
+    plt.title("Dependency of the frequencies of a drum on it's length\n Shape: " + shape)
+    plt.ylabel("Frequency")
+    plt.xlabel("Length of drum")
+    plt.savefig("results/freq_L_" + shape + ".png")
+
+def f_dependence_on_N(disc_steps, colors, shape):
+    """ Dependency of frequency on amount of discretization steps """
+    L = 1
+
+    ###### dependence of frequencie on length of drum
+    for i, N in enumerate(disc_steps):
+        print(i, N)
+        if shape == "Square":
+            width = N
+            height = N
+            M = make_square_matrix(L, N)
+        elif shape == "Rectangle":
+            width = N
+            height = 2 * N
+            M = make_rectangle_matrix(L, N, height)
+        elif shape == "Circle":
+            width = N
+            height = N
+            M = make_circle_matrix(L, N)
+
+        # find eigenvalues and eigenvectors of the matrix
+        eigenvalues, eigenvectors = find_eigenvalues(M)
+
+        # sort from low to high
+        idx = eigenvalues.argsort()[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[idx, :]
+
+        # plot frequencies
+        freq = frequencies(eigenvalues)
+
+        for f in freq:
+            plt.scatter(N, f, color=colors[i])
+
+    plt.title("Dependency of the frequencies of a drum on the amount of discretization steps\n L = 1, shape: " + shape)
+    plt.ylabel("Frequency")
+    plt.xlabel("Amount of discretization steps")
+    plt.savefig("results/freq_N_" + shape + ".png")
+
+def frequencies(eigenvalues):
+    """ Plot all frequencies for the length of a certain drum. """
+
+    frequencies = [math.sqrt(abs(eigenvalue)) for eigenvalue in eigenvalues[:20]]
+
+    return frequencies
+
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
@@ -64,32 +132,6 @@ def find_eigenvalues(M):
     eigenvalues = eigenvalues.real
 
     return eigenvalues, eigenvectors
-
-def graph_surfaces(eigenmodes, L, width, height):
-    """ Makes an 2D and 3D plot of the drum. """
-
-    x = np.linspace(0, L, width)
-    y = np.linspace(0, 2*L, height)
-
-    X, Y = np.meshgrid(x, y)
-
-    for i, eigenvalue in enumerate(eigenmodes):
-        plt.figure()
-        plt.grid(False)
-
-        plt.title("$\lambda$: " + str(eigenvalue))
-        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05, interpolation='bicubic')
-        plt.colorbar()
-        plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
-        plt.close()
-
-        plt.title("$\lambda$: " + str(eigenvalue.real))
-        ax = plt.axes(projection='3d')
-        ax.set_xlim(0,2)
-        ax.set_ylim(0,2)
-        ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
-        plt.close()
 
 def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
     """ Finds eigenmodes that belong with the smallest eigenvalues. """
@@ -207,41 +249,6 @@ def make_circle_matrix(L, N):
     np.fill_diagonal(M, -4 * (1/dx**2))
 
     return M
-
-def show_animation(eigenmodes):
-    dt = 0.001
-    tmax = 0.2
-    timesteps = math.ceil(tmax/dt)
-
-    # this needs to be global for the animation
-    global current_state, fig, ax
-
-    for eigenvalue in eigenmodes:
-        # initiate image
-        current_state = Drum(eigenmodes[eigenvalue], eigenvalue)
-
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
-    ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-    ax.set_xlim(0,20)
-    ax.set_ylim(0,20)
-    ax.set_zlim(-0.1,0.1)
-    # animation
-    anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, repeat=False)
-    plt.show()
-
-def animate(i):
-    """ Calculate next state and set that for the animation. """
-    ax.clear()
-    ax.set_zlim(-0.1,0.1)
-
-    current_state.next_step()
-
-    plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
-    ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-
-    return plt,
 
 if __name__ == '__main__':
     main()
