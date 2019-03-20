@@ -1,14 +1,13 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# This file is part of a program that is used to solve some partial differential
-# equations. The program has been developed for the course Scientific Computing
+# This file is part of a program that is used to solve the wave equations.
+# The program has been developed for the course Scientific Computing
 # in the master Computational Science at the UvA february/march 2019.
 #
-# This part contains the class for a Wave. It contains the three different
-# starting positions and the next step function. It also contains some code
-# that can be used for plotting the wave at different timesteps.
+# This part contains the class for a Drum. It contains the eigenmodes of drums
+# or membranes of either a square, rectangle or circle. 
 #
-# You can't run this class on its own, but it is used in the vibrating string
-# program.
+# You can't run this class on its own, but it is used in the drum
+# program for making the animation.
 # Romy Meester & Natasja Wezel
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
