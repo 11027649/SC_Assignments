@@ -34,6 +34,8 @@ def main():
 def f_dependence_on_L(lengths, colors, shape):
     """ dependence of frequency on length of drum """
 
+    fig = plt.figure()
+
     for i, L in enumerate(lengths):
         print(i, L)
         # amount of discretization steps
@@ -76,6 +78,8 @@ def f_dependence_on_N(disc_steps, colors, shape):
     """ Dependency of frequency on amount of discretization steps """
     L = 1
 
+    fig = plt.figure()
+
     ###### dependence of frequencie on length of drum
     for i, N in enumerate(disc_steps):
         print(i, N)
@@ -114,7 +118,7 @@ def f_dependence_on_N(disc_steps, colors, shape):
 def frequencies(eigenvalues):
     """ Plot all frequencies for the length of a certain drum. """
 
-    frequencies = [math.sqrt(abs(eigenvalue)) for eigenvalue in eigenvalues[:20]]
+    frequencies = [math.sqrt(abs(eigenvalue)) for eigenvalue in eigenvalues]
 
     return frequencies
 

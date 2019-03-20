@@ -17,7 +17,7 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 20 * L
+    N = 21 * L
     # N = 5
 
     # shape can be "Square", "Rectangle" or "Circle"
@@ -50,10 +50,10 @@ def main():
 
     # plot the 10 first modes
     eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
-    graph_surfaces(eigenmodes, L, width, height, shape)
+    # graph_surfaces(eigenmodes, L, width, height, shape)
 
     # make animation
-    # show_animation(eigenmodes, shape, circle)
+    show_animation(eigenmodes, shape, circle)
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
