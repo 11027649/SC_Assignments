@@ -17,15 +17,19 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 10 * L
+    N = 20 * L
+    # N = 5
 
     # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Rectangle"
+    shape = "Circle"
+
+    circle = False
 
     if shape == "Square":
         width = N
         height = N
         M = make_square_matrix(L, N)
+
     elif shape == "Rectangle":
         width = N
         height = 2 * N
@@ -34,7 +38,7 @@ def main():
     elif shape == "Circle":
         width = N
         height = N
-        M = make_circle_matrix(L, N)
+        M, circle = make_circle_matrix(L, N)
 
     # find eigenvalues and eigenvectors of the matrix
     eigenvalues, eigenvectors = find_eigenvalues(M)
@@ -45,11 +49,11 @@ def main():
     eigenvectors = eigenvectors[idx, :]
 
     # plot the 10 first modes
-    # eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
-    # graph_surfaces(eigenmodes, L, width, height)
+    eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
+    graph_surfaces(eigenmodes, L, width, height, shape)
 
     # make animation
-    # show_animation(eigenmodes)
+    # show_animation(eigenmodes, shape, circle)
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
@@ -65,7 +69,7 @@ def find_eigenvalues(M):
 
     return eigenvalues, eigenvectors
 
-def graph_surfaces(eigenmodes, L, width, height):
+def graph_surfaces(eigenmodes, L, width, height, shape):
     """ Makes an 2D and 3D plot of the drum. """
 
     x = np.linspace(0, L, width)
@@ -78,15 +82,19 @@ def graph_surfaces(eigenmodes, L, width, height):
         plt.grid(False)
 
         plt.title("$\lambda$: " + str(eigenvalue))
-        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05, interpolation='bicubic')
+        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05)
         plt.colorbar()
         plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
         plt.close()
 
         plt.title("$\lambda$: " + str(eigenvalue.real))
         ax = plt.axes(projection='3d')
+
+
         ax.set_xlim(0,2)
         ax.set_ylim(0,2)
+
+
         ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
         plt.close()
@@ -101,10 +109,11 @@ def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
         eigenvalue = eigenvalues[i]
         eigenvector = eigenvectors[i]
 
-        # matrix = np.reshape(eigenvector.real, (height, width), order='F')
-        matrix = np.reshape(eigenvector.real, (height, width))
+        if not eigenvalue == 0.0:
+            # matrix = np.reshape(eigenvector.real, (height, width), order='F')
+            matrix = np.reshape(eigenvector.real, (height, width))
 
-        eigenmodes[eigenvalue] = matrix
+            eigenmodes[eigenvalue] = matrix
 
     return eigenmodes
 
@@ -171,69 +180,53 @@ def make_rectangle_matrix(L, N, height):
 
     return M
 
-def make_circle2(L,N):
-    # LITTERALLY A CIRCLE 
+def make_circle_matrix(L,N):
     R = N/2
-    N = 5
-    radius = 1 #math.floor(N/2)
-    print(N, radius)
-    # C = np.zeros((N, N))
-    # small_circle = np.zeros((N-2, N-2))
+    radius = L/2
 
-    kernel = np.zeros((2*radius+1, 2*radius+1))
-    y,x = np.ogrid[-radius:radius+1, -radius:radius+1]
-    mask = x**2 + y**2 <= radius**2
-    kernel[mask] = 1
-    print(kernel)
+    circle = np.zeros((N,N))
 
-def make_circle_matrix(L, N):
-    """ This is a function that makes the matrix of a circle.
-        Grid points within the distance R = L/2 from the center belong to the domain. """
-    # N = 5 --> R = 2, dim = 13
-    # N = 7 -->
+    # iterate over matrix, check if distance is < radius, if yes, it's a 1
+    x, y = math.floor(N/2), math.floor(N/2)
 
-    # Boundary condition for the dimension
-    R = round(N/2) #ACTUALLY N = L!?
-    dimension = math.ceil(math.pi * R**2)
-    print(dimension)
-    M = np.zeros((dimension, dimension))
-    dx = (L/N)
+    for i, row in enumerate(circle):
+        for j, column in enumerate(row):
+            distance = (math.sqrt(abs(i - x)**2 + abs(j - y)**2))/N
 
-    outer_diagonal = N
-    inner_diagonal = 1
+            if distance < radius:
+                circle[i, j] = 1
+    print(circle)
+    M = make_square_matrix(L, N)
 
-    for i in range(dimension):
-        try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
-        except IndexError:
-            pass
+    # step over matrix, check if it's a one in the circle
+    for i in range(len(M)):
+        row = math.floor(i/N)
+        column = i % N
 
-        try:
-            if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
-        except IndexError:
-            pass
+        # if this point does not belong to the circle, change the values in the matrix row to 0
+        if circle[row, column] == 0:
+            for j in range(len(M)):
+                if not i == j:
+                    M[i, j] = 0
+    print(M)
+    return M, circle
 
-        outer_diagonal += 1
-        inner_diagonal += 1
-
-    np.fill_diagonal(M, -4 * (1/dx**2))
-
-    return M
-
-def show_animation(eigenmodes):
+def show_animation(eigenmodes, shape, circle):
     dt = 0.001
     tmax = 0.2
     timesteps = math.ceil(tmax/dt)
 
     # this needs to be global for the animation
     global current_state, fig, ax
-
+    hoi = 1
     for eigenvalue in eigenmodes:
         # initiate image
-        current_state = Drum(eigenmodes[eigenvalue], eigenvalue)
+        if not hoi == 0:
+            current_state = Drum(eigenmodes[eigenvalue], eigenvalue, shape)
+
+            if shape == "Circle":
+                current_state.set_circle(circle)
+        hoi = 0
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')

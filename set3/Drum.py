@@ -21,7 +21,7 @@ import numpy as np
 import copy
 
 class Drum():
-    def __init__(self, matrix, eigenvalue):
+    def __init__(self, matrix, eigenvalue, shape):
 
         self.state = np.copy(matrix)
         self.prev_state = np.copy(matrix)
@@ -31,11 +31,15 @@ class Drum():
 
         self.width = len(matrix)
         self.height = len(matrix[0])
+        self.shape = shape
 
         x = np.linspace(-0.5, 0.5, self.width)
         y = np.linspace(-0.5, 0.5, self.height)
 
         self.X, self.Y = np.meshgrid(x, y)
+
+    def set_circle(self, circle):
+        self.circle = circle
 
     def next_step(self):
         """ Calculate next state of the string. """
@@ -53,48 +57,50 @@ class Drum():
         for i in range(self.width - 1):
             for j in range(self.height - 1):
 
-                if j == 0 and i == 0:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (self.state[i + 1 % self.width, j] + 0\
-                        + 0 + self.state[i, j + 1]\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                elif i == 0:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (self.state[i + 1, j] + 0\
-                        + self.state[i, j - 1] + self.state[i, j + 1 % self.height]\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                elif j == 0:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (self.state[i + 1, j] + self.state[i - 1, j]\
-                        + 0 + self.state[i, j + 1 % self.height]\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                elif i == self.width - 1 and j == self.width - 1:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (0 + self.state[i - 1, j]\
-                        + self.state[i, j - 1] + 0\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                elif i == self.width - 1:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (0 + self.state[i - 1, j]\
-                        + self.state[i, j - 1] + self.state[i, j + 1]\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                elif j == self.width - 1:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (self.state[i + 1, j] + self.state[i - 1, j]\
-                        + self.state[i, j - 1] + 0\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
-                else:
-                    next_state[i, j] = ((c * dt)/ dx)** 2\
-                        * (self.state[i + 1, j] + self.state[i - 1, j]\
-                        + self.state[i, j - 1] + self.state[i, j + 1]\
-                        - 4 * self.state[i, j])\
-                        + 2 * self.state[i, j] - self.prev_state[i , j]
+                if not self.shape == "Circle" or self.circle[i, j] == 1:
+
+                    if j == 0 and i == 0:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1 % self.width, j] + 0\
+                            + 0 + self.state[i, j + 1]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    elif i == 0:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1, j] + 0\
+                            + self.state[i, j - 1] + self.state[i, j + 1 % self.height]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    elif j == 0:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1, j] + self.state[i - 1, j]\
+                            + 0 + self.state[i, j + 1 % self.height]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    elif i == self.width - 1 and j == self.width - 1:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (0 + self.state[i - 1, j]\
+                            + self.state[i, j - 1] + 0\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    elif i == self.width - 1:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (0 + self.state[i - 1, j]\
+                            + self.state[i, j - 1] + self.state[i, j + 1]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    elif j == self.width - 1:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1, j] + self.state[i - 1, j]\
+                            + self.state[i, j - 1] + 0\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    else:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1, j] + self.state[i - 1, j]\
+                            + self.state[i, j - 1] + self.state[i, j + 1]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
 
         self.prev_state = np.copy(self.state)
         self.state = np.copy(next_state)
