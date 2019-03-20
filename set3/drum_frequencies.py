@@ -190,9 +190,6 @@ def make_rectangle_matrix(L, N, height):
     M = np.zeros((dimension, dimension))
     dx = (L/N)
 
-    # TODO: This can't be right, there's two L here ... different amount
-    # of discretization steps in the two directions (I think?)
-
     outer_diagonal = N
     inner_diagonal = 1
 

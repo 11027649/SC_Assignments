@@ -1,3 +1,11 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This file is part of a program that is used to solve the wave equations.
+# The program has been developed for the course Scientific Computing
+# in the master Computational Science at the UvA february/march 2019.
+#
+# Romy Meester & Natasja Wezel
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import numpy as np
 import scipy as sp
 import random
