@@ -203,6 +203,7 @@ def make_circle_matrix(L,N):
 
             if distance < radius:
                 circle[i, j] = 1
+                
     print(circle)
     M = make_square_matrix(L, N)
 

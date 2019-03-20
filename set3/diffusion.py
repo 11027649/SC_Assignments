@@ -22,10 +22,10 @@ def main():
     plt.show()
 
     # use standing vector
-    vector_c = sp.linalg.solve(M, vector_b.T)
+    vector_c = sp.linalg.solve(M, vector_b)
 
     # reshape vector_c
-    end_state = np.reshape(vector_b, (N, N))
+    end_state = np.reshape(vector_c, (N, N))
 
     print(end_state)
 
@@ -76,11 +76,13 @@ def make_circle_matrix(L, N):
 
     for i, row in enumerate(circle):
         for j, column in enumerate(row):
-            distance = (math.sqrt(abs(i - x)**2 + abs(j - y)**2))/N
+            print(i, j, x, y, N)
+            distance = (math.sqrt(abs(i - x)**2 + abs(j - y)**2))/N * 4
 
+            print(distance)
             if distance < radius:
                 circle[i, j] = 1
-                
+
     print(circle)
     M = make_square_matrix(L, N)
 
@@ -89,11 +91,15 @@ def make_circle_matrix(L, N):
         row = math.floor(i/N)
         column = i % N
 
-        # if this point does not belong to the circle, change the values in the matrix row to 0
+        # not in the circle
         if circle[row, column] == 0:
             for j in range(len(M)):
-                if not i == j:
-                    M[i, j] = 0
+                # put a one at the diagonal so it doesn't change from being 0
+                if i == j:
+                    M[i, j] = 1
+
+    # diagonal source must be 1 because it doesn't diffuse
+    M[12, 12] = 1
 
     print(M)
     return M, circle
@@ -101,9 +107,9 @@ def make_circle_matrix(L, N):
 def initial_conditions(N):
     # start at 6, 12
     conc_matrix = np.zeros((N,N))
-    conc_matrix[6, 12] = 1
+    conc_matrix[12, 12] = 1
 
-    vector_b = np.reshape(conc_matrix, (1, N*N))
+    vector_b = conc_matrix.flatten()
 
     print(vector_b)
 
