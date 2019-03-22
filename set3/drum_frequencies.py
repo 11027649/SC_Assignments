@@ -23,12 +23,12 @@ def main():
     range = np.arange(5, 55, 5)
 
     # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Rectangle"
+    shape = "Square"
 
     L = 1
     disc_steps = [r * L for r in range]
 
-    # f_dependence_on_L(lengths, colors, shape)
+    f_dependence_on_L(lengths, colors, shape)
     f_dependence_on_N(disc_steps, colors, shape)
 
 def f_dependence_on_L(lengths, colors, shape):
@@ -72,7 +72,7 @@ def f_dependence_on_L(lengths, colors, shape):
     plt.title("Dependency of the frequencies of a drum on it's length\n Shape: " + shape)
     plt.ylabel("Frequency")
     plt.xlabel("Length of drum")
-    plt.savefig("results/freq_L_" + shape + ".png")
+    plt.savefig("results/" + shape + "/freq_L_" + shape + ".png")
 
 def f_dependence_on_N(disc_steps, colors, shape):
     """ Dependency of frequency on amount of discretization steps """
@@ -113,7 +113,7 @@ def f_dependence_on_N(disc_steps, colors, shape):
     plt.title("Dependency of the frequencies of a drum on the amount of discretization steps\n L = 1, shape: " + shape)
     plt.ylabel("Frequency")
     plt.xlabel("Amount of discretization steps")
-    plt.savefig("results/freq_N_" + shape + ".png")
+    plt.savefig("results/" + shape + "/freq_N_" + shape + ".png")
 
 def frequencies(eigenvalues):
     """ Plot all frequencies for the length of a certain drum. """
@@ -214,42 +214,39 @@ def make_rectangle_matrix(L, N, height):
 
     return M
 
-def make_circle_matrix(L, N):
-    """ This is a function that makes the matrix of a circle.
-        Grid points within the distance R = L/2 from the center belong to the domain. """
-    # N = 5 --> R = 2, dim = 13
-    # N = 7 -->
 
-    # Boundary condition for the dimension
-    R = round(N/2) #ACTUALLY N = L!?
-    dimension = math.ceil(math.pi * R**2)
-    print(dimension)
-    M = np.zeros((dimension, dimension))
-    dx = (L/N)
 
-    outer_diagonal = N
-    inner_diagonal = 1
+def make_circle_matrix(L,N):
+    R = N/2
+    radius = L/2
 
-    for i in range(dimension):
-        try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
-        except IndexError:
-            pass
+    circle = np.zeros((N,N))
 
-        try:
-            if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
-        except IndexError:
-            pass
+    # iterate over matrix, check if distance is < radius, if yes, it's a 1
+    x, y = math.floor(N/2), math.floor(N/2)
 
-        outer_diagonal += 1
-        inner_diagonal += 1
+    for i, row in enumerate(circle):
+        for j, column in enumerate(row):
+            distance = (math.sqrt(abs(i - x)**2 + abs(j - y)**2))/N
 
-    np.fill_diagonal(M, -4 * (1/dx**2))
+            if distance < radius:
+                circle[i, j] = 1
 
-    return M
+    print(circle)
+    M = make_square_matrix(L, N)
+
+    # step over matrix, check if it's a one in the circle
+    for i in range(len(M)):
+        row = math.floor(i/N)
+        column = i % N
+
+        # if this point does not belong to the circle, change the values in the matrix row to 0
+        if circle[row, column] == 0:
+            for j in range(len(M)):
+                if not i == j:
+                    M[i, j] = 0
+    print(M)
+    return M, circle
 
 if __name__ == '__main__':
     main()

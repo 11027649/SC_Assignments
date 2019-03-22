@@ -25,42 +25,44 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 10 * L
+    N = 50 * L
 
     # shape can be "Square", "Rectangle" or "Circle"
     shape = "Rectangle"
+    shapes = ["Square", "Circle", "Rectangle"]
 
-    circle = False
+    for shape in shapes:
+        circle = False
 
-    if shape == "Square":
-        width = N
-        height = N
-        M = make_square_matrix(L, N)
+        if shape == "Square":
+            width = N
+            height = N
+            M = make_square_matrix(L, N)
 
-    elif shape == "Rectangle":
-        width = N
-        height = 2 * N
-        M = make_rectangle_matrix(L, N, height)
+        elif shape == "Rectangle":
+            width = N
+            height = 2 * N
+            M = make_rectangle_matrix(L, N, height)
 
-    elif shape == "Circle":
-        width = N
-        height = N
-        M, circle = make_circle_matrix(L, N)
+        elif shape == "Circle":
+            width = N
+            height = N
+            M, circle = make_circle_matrix(L, N)
 
-    # find eigenvalues and eigenvectors of the matrix
-    eigenvalues, eigenvectors = find_eigenvalues(M)
+        # find eigenvalues and eigenvectors of the matrix
+        eigenvalues, eigenvectors = find_eigenvalues(M)
 
-    # sort from low to high
-    idx = eigenvalues.argsort()[::-1]
-    eigenvalues = eigenvalues[idx]
-    eigenvectors = eigenvectors[idx, :]
+        # sort from low to high
+        idx = eigenvalues.argsort()[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[idx, :]
 
-    # plot the 10 first modes
-    eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
-    # graph_surfaces(eigenmodes, L, width, height, shape)
+        # plot the 10 first modes
+        eigenmodes = find_eigenmodes(eigenvectors, eigenvalues, shape, width, height)
+        graph_surfaces(eigenmodes, L, width, height, shape)
 
-    # make animation
-    show_animation(eigenmodes, shape, circle)
+        # make animation
+        # show_animation(eigenmodes, shape, circle)
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
@@ -91,7 +93,7 @@ def graph_surfaces(eigenmodes, L, width, height, shape):
         plt.title("$\lambda$: " + str(eigenvalue))
         plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05)
         plt.colorbar()
-        plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
+        plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
         plt.close()
 
         plt.title("$\lambda$: " + str(eigenvalue.real))
@@ -102,7 +104,7 @@ def graph_surfaces(eigenmodes, L, width, height, shape):
         ax.set_ylim(0,2)
 
         ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
+        plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
         plt.close()
 
 def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):

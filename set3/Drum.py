@@ -92,22 +92,22 @@ class Drum():
                     # right top corner
                     elif i == 0 and j == self.height - 1:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
-                            * (0 + self.state[i - 1, j]\
+                            * (0 + self.state[i + 1, j]\
                             + self.state[i, j - 1] + 0\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
                     # right bottom corner
                     elif i == self.width - 1 and j == 0:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
-                            * (self.state[i + 1, j] + 0\
-                            + self.state[i, j - 1] + 0\
+                            * (self.state[i, j - 1] + 0\
+                            + 0 + self.state[i - 1, j]\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
                     # left bottom corner
                     elif i == self.width - 1 and j == self.height - 1:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
-                            * (0 + self.state[i - 1, j]\
-                            + 0 + self.state[i, j + 1]\
+                            * (self.state[i, j - 1] + self.state[i - 1, j]\
+                            + 0 + 0\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
                     elif i == 0: # j is not 0
