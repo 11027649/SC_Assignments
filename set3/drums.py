@@ -25,11 +25,10 @@ sns.set()
 def main():
     L = 1
     # amount of discretization steps
-    N = 21 * L
-    # N = 5
+    N = 10 * L
 
     # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Square"
+    shape = "Rectangle"
 
     circle = False
 
@@ -226,18 +225,22 @@ def show_animation(eigenmodes, shape, circle):
 
     # this needs to be global for the animation
     global current_state, fig, ax
-    hoi = 1
-    for eigenvalue in eigenmodes:
-        # initiate image
-        if not hoi == 0:
-            current_state = Drum(eigenmodes[eigenvalue], eigenvalue, shape)
 
-            if shape == "Circle":
-                current_state.set_circle(circle)
-        hoi = 0
+    for eigenvalue in eigenmodes:
+        current_state = Drum(eigenmodes[eigenvalue], eigenvalue, shape)
+
+        if shape == "Circle":
+            current_state.set_circle(circle)
+        elif shape == "Rectangle":
+            current_state.state = current_state.state.T
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
+
+    print(len(current_state.X), len(current_state.X[0]), \
+                len(current_state.Y), len(current_state.Y[0]),\
+                len(current_state.state), len(current_state.state[0]))
+
     plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
     ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
     ax.set_xlim(0,20)

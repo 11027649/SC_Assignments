@@ -30,17 +30,25 @@ class Drum():
 
         self.width = len(matrix)
         self.height = len(matrix[0])
+
         self.shape = shape
 
-        x = np.linspace(-0.5, 0.5, self.width)
-        y = np.linspace(-0.5, 0.5, self.height)
+        if not shape == "Rectangle":
+            x = np.linspace(-0.5, 0.5, self.width)
+            y = np.linspace(-0.5, 0.5, self.height)
 
-        self.X, self.Y = np.meshgrid(x, y)
+            self.X, self.Y = np.meshgrid(x, y)
+        else:
+            x = np.linspace(-0.5, 0.5, self.width)
+            y = np.linspace(-1, 1, self.height)
+
+            self.X, self.Y = np.meshgrid(x, y)
 
     def set_circle(self, circle):
         self.circle = circle
 
     def prettified_current_state(self):
+        """ Add zeros around the boundaries"""
 
         prettified = np.zeros((len(self.state) + 2,len(self.state[0]) + 2))
 
@@ -57,7 +65,7 @@ class Drum():
 
 
     def next_step(self):
-        """ Calculate next state of the string. """
+        """ Calculate next state of the vibrating drum membrane. """
 
         c = 1
         dt = 0.001
@@ -67,35 +75,51 @@ class Drum():
         next_state = np.copy(self.state)
 
         print("next step!!!!!!!!", self.timestep)
-
+        print(self.height, self.width)
         # iterate over matrix
         for i in range(self.width):
             for j in range(self.height):
 
                 if not self.shape == "Circle" or self.circle[i, j] == 1:
 
-                    if j == 0 and i == 0:
+                    # left bottom corner
+                    if i == 0 and j == 0:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
-                            * (self.state[i + 1 % self.width, j] + 0\
+                            * (self.state[i + 1, j] + 0\
+                            + 0 + self.state[i, j + 1]\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i, j]
+                    # right top corner
+                    elif i == 0 and j == self.height - 1:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (0 + self.state[i - 1, j]\
+                            + self.state[i, j - 1] + 0\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    # right bottom corner
+                    elif i == self.width - 1 and j == 0:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (self.state[i + 1, j] + 0\
+                            + self.state[i, j - 1] + 0\
+                            - 4 * self.state[i, j])\
+                            + 2 * self.state[i, j] - self.prev_state[i , j]
+                    # left bottom corner
+                    elif i == self.width - 1 and j == self.height - 1:
+                        next_state[i, j] = ((c * dt)/ dx)** 2\
+                            * (0 + self.state[i - 1, j]\
                             + 0 + self.state[i, j + 1]\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
-                    elif i == 0:
+                    elif i == 0: # j is not 0
                         next_state[i, j] = ((c * dt)/ dx)** 2\
                             * (self.state[i + 1, j] + 0\
-                            + self.state[i, j - 1] + self.state[i, j + 1 % self.height]\
+                            + self.state[i, j - 1] + self.state[i, j + 1]\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
                     elif j == 0:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
                             * (self.state[i + 1, j] + self.state[i - 1, j]\
-                            + 0 + self.state[i, j + 1 % self.height]\
-                            - 4 * self.state[i, j])\
-                            + 2 * self.state[i, j] - self.prev_state[i , j]
-                    elif i == self.width - 1 and j == self.width - 1:
-                        next_state[i, j] = ((c * dt)/ dx)** 2\
-                            * (0 + self.state[i - 1, j]\
-                            + self.state[i, j - 1] + 0\
+                            + 0 + self.state[i, j + 1]\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
                     elif i == self.width - 1:
@@ -104,7 +128,7 @@ class Drum():
                             + self.state[i, j - 1] + self.state[i, j + 1]\
                             - 4 * self.state[i, j])\
                             + 2 * self.state[i, j] - self.prev_state[i , j]
-                    elif j == self.width - 1:
+                    elif j == self.height - 1:
                         next_state[i, j] = ((c * dt)/ dx)** 2\
                             * (self.state[i + 1, j] + self.state[i - 1, j]\
                             + self.state[i, j - 1] + 0\
