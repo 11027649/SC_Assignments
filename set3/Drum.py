@@ -4,7 +4,7 @@
 # in the master Computational Science at the UvA february/march 2019.
 #
 # This part contains the class for a Drum. It contains the eigenmodes of drums
-# or membranes of either a square, rectangle or circle. 
+# or membranes of either a square, rectangle or circle.
 #
 # You can't run this class on its own, but it is used in the drum
 # program for making the animation.
@@ -40,6 +40,22 @@ class Drum():
     def set_circle(self, circle):
         self.circle = circle
 
+    def prettified_current_state(self):
+
+        prettified = np.zeros((len(self.state) + 2,len(self.state[0]) + 2))
+
+        for i in range(1, len(prettified) - 2):
+            for j in range(1, len(prettified[0]) - 2):
+                prettified[i, j] = self.state[i - 1, j - 1]
+
+        x = np.linspace(-0.5, 0.5, self.width + 2)
+        y = np.linspace(-0.5, 0.5, self.height + 2)
+
+        X, Y = np.meshgrid(x, y)
+
+        return X, Y, prettified
+
+
     def next_step(self):
         """ Calculate next state of the string. """
 
@@ -53,8 +69,8 @@ class Drum():
         print("next step!!!!!!!!", self.timestep)
 
         # iterate over matrix
-        for i in range(self.width - 1):
-            for j in range(self.height - 1):
+        for i in range(self.width):
+            for j in range(self.height):
 
                 if not self.shape == "Circle" or self.circle[i, j] == 1:
 

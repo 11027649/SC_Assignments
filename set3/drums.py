@@ -29,7 +29,7 @@ def main():
     # N = 5
 
     # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Circle"
+    shape = "Square"
 
     circle = False
 
@@ -101,7 +101,6 @@ def graph_surfaces(eigenmodes, L, width, height, shape):
 
         ax.set_xlim(0,2)
         ax.set_ylim(0,2)
-
 
         ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         plt.savefig("results/drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
@@ -203,7 +202,7 @@ def make_circle_matrix(L,N):
 
             if distance < radius:
                 circle[i, j] = 1
-                
+
     print(circle)
     M = make_square_matrix(L, N)
 
@@ -255,8 +254,9 @@ def animate(i):
 
     current_state.next_step()
 
+    X, Y, prettified_state = current_state.prettified_current_state()
     plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
-    ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+    ax.plot_surface(X, Y, prettified_state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
     return plt,
 
