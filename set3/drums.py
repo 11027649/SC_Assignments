@@ -28,23 +28,23 @@ def main():
     N = 50 * L
 
     # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Rectangle"
-    shapes = ["Square", "Circle", "Rectangle"]
+    shape = "rectangle"
+    shapes = ["square", "circle", "rectangle"]
 
     for shape in shapes:
         circle = False
 
-        if shape == "Square":
+        if shape == "square":
             width = N
             height = N
             M = make_square_matrix(L, N)
 
-        elif shape == "Rectangle":
+        elif shape == "rectangle":
             width = N
             height = 2 * N
             M = make_rectangle_matrix(L, N, height)
 
-        elif shape == "Circle":
+        elif shape == "circle":
             width = N
             height = N
             M, circle = make_circle_matrix(L, N)
@@ -96,12 +96,21 @@ def graph_surfaces(eigenmodes, L, width, height, shape):
         plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
         plt.close()
 
+
+        ##### plot 3D graph
         plt.title("$\lambda$: " + str(eigenvalue.real))
         ax = plt.axes(projection='3d')
 
+        if shape == "Rectangle":
+            ax.set_xlim(0,2)
+            ax.set_ylim(0,2)
+        else:
+            ax.set_xlim(0,1)
+            ax.set_ylim(0,1)
 
-        ax.set_xlim(0,2)
-        ax.set_ylim(0,2)
+        ax.xlabel("x-coordinate")
+        ax.ylabel("y-coordinate")
+        ax.zlabel("z-coordinate")
 
         ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
         plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
@@ -204,7 +213,6 @@ def make_circle_matrix(L,N):
             if distance < radius:
                 circle[i, j] = 1
 
-    print(circle)
     M = make_square_matrix(L, N)
 
     # step over matrix, check if it's a one in the circle
@@ -217,7 +225,7 @@ def make_circle_matrix(L,N):
             for j in range(len(M)):
                 if not i == j:
                     M[i, j] = 0
-    print(M)
+
     return M, circle
 
 def show_animation(eigenmodes, shape, circle):
@@ -231,9 +239,9 @@ def show_animation(eigenmodes, shape, circle):
     for eigenvalue in eigenmodes:
         current_state = Drum(eigenmodes[eigenvalue], eigenvalue, shape)
 
-        if shape == "Circle":
+        if shape == "circle":
             current_state.set_circle(circle)
-        elif shape == "Rectangle":
+        elif shape == "rectangle":
             current_state.state = current_state.state.T
 
     fig = plt.figure()

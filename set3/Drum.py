@@ -33,7 +33,7 @@ class Drum():
 
         self.shape = shape
 
-        if not shape == "Rectangle":
+        if not shape == "rectangle":
             x = np.linspace(-0.5, 0.5, self.width)
             y = np.linspace(-0.5, 0.5, self.height)
 
@@ -63,7 +63,6 @@ class Drum():
 
         return X, Y, prettified
 
-
     def next_step(self):
         """ Calculate next state of the vibrating drum membrane. """
 
@@ -74,13 +73,13 @@ class Drum():
         # copy current state first
         next_state = np.copy(self.state)
 
-        print("next step!!!!!!!!", self.timestep)
         print(self.height, self.width)
+
         # iterate over matrix
         for i in range(self.width):
             for j in range(self.height):
 
-                if not self.shape == "Circle" or self.circle[i, j] == 1:
+                if not self.shape == "circle" or self.circle[i, j] == 1:
 
                     # left bottom corner
                     if i == 0 and j == 0:

@@ -1,35 +1,30 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This file is part of a program that is used to solve the partial differential
+# equations.
+# The program has been developed for the course Scientific Computing
+# in the master Computational Science at the UvA february/march 2019.
+#
+# This part contains methods to find out the dependency of the frequencies
+# of drums (with different shapes) on the size of the drum, and the Amount
+# of discretization steps we take into account when solving the eigenvalue
+# problem.
+#
+# Run it by exectuing ```python drum_frequencies.py``` in a terminal
+# Romy Meester & Natasja Wezel
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import numpy as np
 import scipy as sp
 import random
 from scipy import linalg
-from scipy.sparse import linalg as linalg2
+
+import time
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
-from Drum import Drum
-
-from mpl_toolkits import mplot3d
 import math
 import seaborn as sns
 sns.set()
-
-def main():
-    lengths = [1, 2, 3, 4, 5]
-    colors = ["orchid", "mediumspringgreen", "red", "green", "yellow", "blue",\
-                "purple", "cyan", "deepskyblue", "lawngreen", "mediumslateblue",\
-                "orange", "aqua", "greenyellow"]
-
-    range = np.arange(5, 55, 5)
-
-    # shape can be "Square", "Rectangle" or "Circle"
-    shape = "Square"
-
-    L = 1
-    disc_steps = [r * L for r in range]
-
-    f_dependence_on_L(lengths, colors, shape)
-    f_dependence_on_N(disc_steps, colors, shape)
 
 def f_dependence_on_L(lengths, colors, shape):
     """ dependence of frequency on length of drum """
@@ -41,18 +36,18 @@ def f_dependence_on_L(lengths, colors, shape):
         # amount of discretization steps
         N = 10 * L
 
-        if shape == "Square":
+        if shape == "square":
             width = N
             height = N
             M = make_square_matrix(L, N)
-        elif shape == "Rectangle":
+        elif shape == "rectangle":
             width = N
             height = 2 * N
             M = make_rectangle_matrix(L, N, height)
-        elif shape == "Circle":
+        elif shape == "circle":
             width = N
             height = N
-            M = make_circle_matrix(L, N)
+            M, circle = make_circle_matrix(L, N)
 
         # find eigenvalues and eigenvectors of the matrix
         eigenvalues, eigenvectors = find_eigenvalues(M)
@@ -66,13 +61,12 @@ def f_dependence_on_L(lengths, colors, shape):
         freq = frequencies(eigenvalues)
 
         for f in freq:
-            print(f)
             plt.scatter(L, f, color=colors[i])
 
     plt.title("Dependency of the frequencies of a drum on it's length\n Shape: " + shape)
     plt.ylabel("Frequency")
     plt.xlabel("Length of drum")
-    plt.savefig("results/" + shape + "/freq_L_" + shape + ".png")
+    plt.savefig("results/drums/freq_L_" + shape + ".png")
 
 def f_dependence_on_N(disc_steps, colors, shape):
     """ Dependency of frequency on amount of discretization steps """
@@ -83,15 +77,17 @@ def f_dependence_on_N(disc_steps, colors, shape):
     ###### dependence of frequencie on length of drum
     for i, N in enumerate(disc_steps):
         print(i, N)
-        if shape == "Square":
+        time1 = time.time()
+
+        if shape == "square":
             width = N
             height = N
             M = make_square_matrix(L, N)
-        elif shape == "Rectangle":
+        elif shape == "rectangle":
             width = N
             height = 2 * N
             M = make_rectangle_matrix(L, N, height)
-        elif shape == "Circle":
+        elif shape == "circle":
             width = N
             height = N
             M = make_circle_matrix(L, N)
@@ -107,28 +103,27 @@ def f_dependence_on_N(disc_steps, colors, shape):
         # plot frequencies
         freq = frequencies(eigenvalues)
 
+        spended_time = time.time() - time1
+        print(spended_time)
+
         for f in freq:
             plt.scatter(N, f, color=colors[i])
 
     plt.title("Dependency of the frequencies of a drum on the amount of discretization steps\n L = 1, shape: " + shape)
     plt.ylabel("Frequency")
     plt.xlabel("Amount of discretization steps")
-    plt.savefig("results/" + shape + "/freq_N_" + shape + ".png")
+    plt.savefig("results/drums/freq_N_" + shape + ".png")
 
 def frequencies(eigenvalues):
     """ Plot all frequencies for the length of a certain drum. """
 
-    frequencies = [math.sqrt(abs(eigenvalue)) for eigenvalue in eigenvalues]
+    frequencies = [math.sqrt(abs(eigenvalue)) for eigenvalue in eigenvalues[:20]]
 
     return frequencies
-
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
     of the matrix M. """
-    # eigenvalues, eigenvectors = linalg.eig(M)
-    # eigenvalues, eigenvectors = linalg2.eigs(M, k=2500)
-    # print(eigenvalues, len(eigenvalues))
 
     eigenvalues, eigenvectors = linalg.eig(M)
 
@@ -147,7 +142,6 @@ def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
         eigenvalue = eigenvalues[i]
         eigenvector = eigenvectors[i]
 
-        # matrix = np.reshape(eigenvector.real, (height, width), order='F')
         matrix = np.reshape(eigenvector.real, (height, width))
 
         eigenmodes[eigenvalue] = matrix
@@ -156,36 +150,40 @@ def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
 
 def make_square_matrix(L, N):
     """ This is a function that makes the matrix of a square. """
+
     dimension = N**2
     M = np.zeros((dimension, dimension))
-    dx = (L/N)
+    dx = L/N
 
     outer_diagonal = N
     inner_diagonal = 1
 
     for i in range(dimension):
         try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
+            M[outer_diagonal, i] = 1
+            M[i, outer_diagonal] = 1
         except IndexError:
             pass
 
         try:
             if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
+                M[inner_diagonal, i] = 1
+                M[i, inner_diagonal] = 1
         except IndexError:
             pass
 
         outer_diagonal += 1
         inner_diagonal += 1
 
-    np.fill_diagonal(M, -4 * (1/dx**2))
+    np.fill_diagonal(M, -4)
+
+    M = (1/dx**2) * M
 
     return M
 
 def make_rectangle_matrix(L, N, height):
     """ This is a function that makes the matrix of a rectangle. """
+
     dimension = N * height
     M = np.zeros((dimension, dimension))
     dx = (L/N)
@@ -195,44 +193,46 @@ def make_rectangle_matrix(L, N, height):
 
     for i in range(dimension):
         try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
+            M[outer_diagonal, i] = 1
+            M[i, outer_diagonal] = 1
         except IndexError:
             pass
 
         try:
             if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
+                M[inner_diagonal, i] = 1
+                M[i, inner_diagonal] = 1
         except IndexError:
             pass
 
         outer_diagonal += 1
         inner_diagonal += 1
 
-    np.fill_diagonal(M, -4 * (1/dx**2))
+    np.fill_diagonal(M, -4)
+
+    M = (1/dx**2) * M
 
     return M
 
-
-
 def make_circle_matrix(L,N):
+    """ This is a function that makes a matrix for the circle. """
     R = N/2
     radius = L/2
 
     circle = np.zeros((N,N))
 
-    # iterate over matrix, check if distance is < radius, if yes, it's a 1
+    # middle point of circle
     x, y = math.floor(N/2), math.floor(N/2)
 
-    for i, row in enumerate(circle):
-        for j, column in enumerate(row):
+    # iterate over matrix, check if distance is < radius, if yes, it's a 1
+    for i in range(len(circle)):
+        for j in range(len(circle[0])):
+
             distance = (math.sqrt(abs(i - x)**2 + abs(j - y)**2))/N
 
             if distance < radius:
                 circle[i, j] = 1
 
-    print(circle)
     M = make_square_matrix(L, N)
 
     # step over matrix, check if it's a one in the circle
@@ -245,8 +245,29 @@ def make_circle_matrix(L,N):
             for j in range(len(M)):
                 if not i == j:
                     M[i, j] = 0
-    print(M)
+
     return M, circle
 
 if __name__ == '__main__':
-    main()
+    colors = ["orchid", "mediumspringgreen", "yellow", "blue",\
+                "purple", "cyan", "deepskyblue", "lawngreen", "mediumslateblue",\
+                "orange", "aqua", "greenyellow"]
+
+    # shape can be "square", "rectangle" or "circle"
+    shapes = ["rectangle", "square", "circle"]
+
+    for shape in shapes:
+        print(shape)
+        # amounts of discretization steps, for size of drum = 1
+        L = 1
+
+        dom = np.arange(5, 65, 5)
+        disc_steps = [r * L for r in dom]
+
+        print(disc_steps)
+
+        # lengths to test for the drums
+        lengths = [1, 2, 3, 4, 5]
+
+        f_dependence_on_N(disc_steps, colors, shape)
+        # f_dependence_on_L(lengths, colors, shape)
