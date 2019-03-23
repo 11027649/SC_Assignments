@@ -73,11 +73,9 @@ class Drum():
         # copy current state first
         next_state = np.copy(self.state)
 
-        print(self.height, self.width)
-
         # iterate over matrix
-        for i in range(self.width):
-            for j in range(self.height):
+        for i in range(self.width - 1):
+            for j in range(self.height - 1):
 
                 if not self.shape == "circle" or self.circle[i, j] == 1:
 

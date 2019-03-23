@@ -22,14 +22,19 @@ import math
 import seaborn as sns
 sns.set()
 
+import matplotlib.ticker as tkr     # has classes for tick-locating and -formatting
+import pylab
+
+import time
+
 def main():
     L = 1
     # amount of discretization steps
     N = 50 * L
 
-    # shape can be "Square", "Rectangle" or "Circle"
-    shape = "rectangle"
-    shapes = ["square", "circle", "rectangle"]
+    # shape can be "square", "rectangle" or "circle"
+    shapes = ["square", "circle"]
+    # shapes = ["rectangle"]
 
     for shape in shapes:
         circle = False
@@ -62,16 +67,13 @@ def main():
         graph_surfaces(eigenmodes, L, width, height, shape)
 
         # make animation
-        # show_animation(eigenmodes, shape, circle)
+        show_animation(eigenmodes, shape, circle)
 
 def find_eigenvalues(M):
     """ Calculate the eigenvalues and corresponding eigenvectors
     of the matrix M. """
-    # eigenvalues, eigenvectors = linalg.eig(M)
-    # eigenvalues, eigenvectors = linalg2.eigs(M, k=2500)
-    # print(eigenvalues, len(eigenvalues))
 
-    eigenvalues, eigenvectors = linalg.eig(M)
+    eigenvalues, eigenvectors = linalg2.eigs(M, k=10, which='LR')
 
     eigenvectors = eigenvectors.T
     eigenvalues = eigenvalues.real
@@ -81,40 +83,72 @@ def find_eigenvalues(M):
 def graph_surfaces(eigenmodes, L, width, height, shape):
     """ Makes an 2D and 3D plot of the drum. """
 
-    x = np.linspace(0, L, width)
-    y = np.linspace(0, 2*L, height)
+    if shape == "rectangle":
+        x = np.linspace(0, L, width)
+        y = np.linspace(0, 2*L, height)
+    else:
+        x = np.linspace(0, L, width)
+        y = np.linspace(0, L, height)
 
     X, Y = np.meshgrid(x, y)
 
     for i, eigenvalue in enumerate(eigenmodes):
-        plt.figure()
+        fig, ax = plt.subplots()
         plt.grid(False)
 
-        plt.title("$\lambda$: " + str(eigenvalue))
-        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.05, vmax=0.05)
+        plt.title("Eigenmode for $\lambda$: " + str(round(abs(eigenvalue), 5)))
+        plt.imshow(eigenmodes[eigenvalue], cmap='viridis', origin="lower", vmin=-0.03, vmax=0.03)
         plt.colorbar()
-        plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
+        plt.xlabel('x-coordinate')
+        plt.ylabel('y-coordinate')
+
+        # stupid ax formatting
+        if shape == "rectangle":
+            ax.set_xticks([0,10,20,30,40,49])
+            ax.set_yticks([0,10,20,30,40,50,60,70,80,90,99])
+        else:
+            ax.set_xticks([0,10,20,30,40,49])
+            ax.set_yticks([0,10,20,30,40,49])
+
+        yfmt = tkr.FuncFormatter(numfmt)    # create your custom formatter function
+        pylab.gca().yaxis.set_major_formatter(yfmt)
+        pylab.gca().xaxis.set_major_formatter(yfmt)
+
+        plt.savefig("results/drums/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + ".png", dpi=150)
         plt.close()
 
-
         ##### plot 3D graph
-        plt.title("$\lambda$: " + str(eigenvalue.real))
+        fig = plt.figure()
         ax = plt.axes(projection='3d')
 
-        if shape == "Rectangle":
+        if shape == "rectangle":
             ax.set_xlim(0,2)
             ax.set_ylim(0,2)
         else:
             ax.set_xlim(0,1)
             ax.set_ylim(0,1)
 
-        ax.xlabel("x-coordinate")
-        ax.ylabel("y-coordinate")
-        ax.zlabel("z-coordinate")
+        plt.title("Eigenmode for $\lambda$: " + str(round(abs(eigenvalue), 5)))
+        ax.set_xlabel("x-coordinate")
+        ax.set_ylabel("y-coordinate")
+        ax.set_zlabel("z-coordinate")
 
         ax.plot_surface(X, Y, eigenmodes[eigenvalue], rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        plt.savefig("results/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
+        plt.savefig("results/drums/" + shape + "/" + shape + "drum" + str(abs(eigenvalue.real)) + "_" + str(i) + "_3D.png", dpi=150)
         plt.close()
+
+def numfmt(x, pos):
+    """ This function takes an ax and returns the formatted values for this ax."""
+
+    # show the final step as a 2.0 because it's pretty
+    if x == 49:
+        s = 1.0
+    elif x == 99:
+        s = 2.0
+    else:
+        s = '{}'.format(x/50)
+
+    return s
 
 def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
     """ Finds eigenmodes that belong with the smallest eigenvalues. """
@@ -122,7 +156,7 @@ def find_eigenmodes(eigenvectors, eigenvalues, shape, width, height):
     eigenmodes = {}
 
     for i in range(10):
-        # plot first .. frequencies
+        # plot first 10 frequencies
         eigenvalue = eigenvalues[i]
         eigenvector = eigenvectors[i]
 
@@ -145,22 +179,24 @@ def make_square_matrix(L, N):
 
     for i in range(dimension):
         try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
+            M[outer_diagonal, i] = 1
+            M[i, outer_diagonal] = 1
         except IndexError:
             pass
 
         try:
             if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
+                M[inner_diagonal, i] = 1
+                M[i, inner_diagonal] = 1
         except IndexError:
             pass
 
         outer_diagonal += 1
         inner_diagonal += 1
 
-    np.fill_diagonal(M, -4 * (1/dx**2))
+    np.fill_diagonal(M, -4)
+
+    M = (1/dx**2) * M
 
     return M
 
@@ -170,30 +206,29 @@ def make_rectangle_matrix(L, N, height):
     M = np.zeros((dimension, dimension))
     dx = (L/N)
 
-    # TODO: This can't be right, there's two L here ... different amount
-    # of discretization steps in the two directions (I think?)
-
     outer_diagonal = N
     inner_diagonal = 1
 
     for i in range(dimension):
         try:
-            M[outer_diagonal, i] = 1 * (1/dx**2)
-            M[i, outer_diagonal] = 1 * (1/dx**2)
+            M[outer_diagonal, i] = 1
+            M[i, outer_diagonal] = 1
         except IndexError:
             pass
 
         try:
             if not inner_diagonal % N == 0:
-                M[inner_diagonal, i] = 1 * (1/dx**2)
-                M[i, inner_diagonal] = 1 * (1/dx**2)
+                M[inner_diagonal, i] = 1
+                M[i, inner_diagonal] = 1
         except IndexError:
             pass
 
         outer_diagonal += 1
         inner_diagonal += 1
 
-    np.fill_diagonal(M, -4 * (1/dx**2))
+    np.fill_diagonal(M, -4)
+
+    M = (1/dx**2) * M
 
     return M
 
@@ -247,10 +282,6 @@ def show_animation(eigenmodes, shape, circle):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
 
-    print(len(current_state.X), len(current_state.X[0]), \
-                len(current_state.Y), len(current_state.Y[0]),\
-                len(current_state.state), len(current_state.state[0]))
-
     plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
     ax.plot_surface(current_state.X, current_state.Y, current_state.state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
     ax.set_xlim(0,20)
@@ -258,7 +289,7 @@ def show_animation(eigenmodes, shape, circle):
     ax.set_zlim(-0.1,0.1)
     # animation
     anim = animation.FuncAnimation(fig, animate, frames=timesteps, interval=1, repeat=False)
-    plt.show()
+    anim.save("results/drums/" + shape + str(abs((current_state.eigenvalue.real))) + ".mp4", fps=25)
 
 def animate(i):
     """ Calculate next state and set that for the animation. """
@@ -268,7 +299,7 @@ def animate(i):
     current_state.next_step()
 
     X, Y, prettified_state = current_state.prettified_current_state()
-    plt.title("Vibration of eigenmode with $\lambda$: " + str(current_state.eigenvalue.real) + " timestep: " + str(current_state.timestep))
+    plt.title("Vibration of eigenmode with $\lambda$: " + str(round(abs(current_state.eigenvalue.real), 5)) + "timestep: " + str(current_state.timestep))
     ax.plot_surface(X, Y, prettified_state, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
 
     return plt,
